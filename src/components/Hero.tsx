@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 
 import { useEffect, useRef, useState } from "react";
@@ -36,85 +37,87 @@ const Hero = ({ electricalSystem, setElectricalSystem, onStartQuiz, onContinue, 
   return (
     <header className="relative overflow-hidden">
       <div className="bg-hero-gradient">
-        <div className="container px-4 py-12 sm:py-16 md:py-20 text-primary-foreground">
+        <div className="container px-4 py-12 sm:py-16 md:py-20 text-white">
           <div className="max-w-3xl mx-auto">
             <div className="flex justify-center mb-3">
-              <span className="inline-flex items-center gap-2 rounded-full bg-success/15 text-success px-3 py-1 text-xs sm:text-sm">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/20 text-white px-3 py-1 text-xs sm:text-sm font-medium">
                 <span aria-hidden>⚡</span> EV Charger Installation Quote
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center text-white">
               EV Charger Installation — Get Your Custom Quote
             </h1>
-            <p className="mt-3 text-base sm:text-lg md:text-xl text-center opacity-90">
-              Take our <strong>FREE 60‑second assessment</strong> to get a personalized EV charger installation quote for your Columbus area home.
+            <p className="mt-3 text-base sm:text-lg md:text-xl text-center text-white/95 font-medium">
+              Take our <strong className="text-white">FREE 60‑second assessment</strong> to get a personalized EV charger installation quote for your Columbus area home.
             </p>
-            <div className="mt-4 flex items-center justify-center gap-3 text-muted-foreground">
+            <div className="mt-4 flex items-center justify-center gap-3 text-white/90">
               <div className="flex gap-1 text-lg" aria-label="5.0 out of 5 stars">
                 <span>⭐️</span><span>⭐️</span><span>⭐️</span><span>⭐️</span><span>⭐️</span>
               </div>
-              <span className="text-sm">Licensed electricians • Columbus area</span>
+              <span className="text-sm font-medium">Licensed electricians • Columbus area</span>
             </div>
-            <div
-              ref={sectionRef}
-              className="mx-auto max-w-2xl rounded-2xl bg-card text-foreground shadow-lg border border-white/10 overflow-hidden focus:outline-none"
-            >
-              <div className="bg-success/15 text-success px-4 py-2 text-sm flex items-center justify-between">
-                <span>Professional EV charger installation in Columbus area</span>
-                <span aria-hidden>→</span>
-              </div>
-              <div className="p-5 sm:p-7">
-                <fieldset>
-                  <legend className="text-2xl sm:text-3xl font-semibold text-center mb-2">🔌 Do you currently have an electric vehicle?</legend>
-                  <p className="text-center text-muted-foreground mb-4">We install chargers for current and future EV owners</p>
+            <div className="mt-8">
+              <div
+                ref={sectionRef}
+                className="mx-auto max-w-2xl rounded-2xl bg-white text-gray-900 shadow-xl border border-white/20 overflow-hidden focus:outline-none"
+              >
+                <div className="bg-green-50 text-green-800 px-4 py-2 text-sm flex items-center justify-between border-b border-green-200">
+                  <span className="font-medium">Professional EV charger installation in Columbus area</span>
+                  <span aria-hidden>→</span>
+                </div>
+                <div className="p-5 sm:p-7">
+                  <fieldset>
+                    <legend className="text-2xl sm:text-3xl font-semibold text-center mb-2 text-gray-900">🔌 Do you currently have an electric vehicle?</legend>
+                    <p className="text-center text-gray-600 mb-4 font-medium">We install chargers for current and future EV owners</p>
 
-                  <div className="space-y-3">
-                    <button
-                      type="button"
-                      onClick={() => setHasEV('yes')}
-                      aria-pressed={hasEV==='yes'}
-                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${hasEV==='yes' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
-                    >
-                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{hasEV==='yes' ? '✅' : ''}</span>
-                      <span className="font-medium">Yes, I own an EV</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setHasEV('planning')}
-                      aria-pressed={hasEV==='planning'}
-                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${hasEV==='planning' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
-                    >
-                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{hasEV==='planning' ? '✅' : ''}</span>
-                      <span className="font-medium">Planning to buy an EV soon</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setHasEV('no')}
-                      aria-pressed={hasEV==='no'}
-                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${hasEV==='no' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
-                    >
-                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{hasEV==='no' ? '❌' : ''}</span>
-                      <span className="font-medium">No, just exploring options</span>
-                    </button>
-                  </div>
+                    <div className="space-y-3">
+                      <button
+                        type="button"
+                        onClick={() => setHasEV('yes')}
+                        aria-pressed={hasEV==='yes'}
+                        className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition font-medium ${hasEV==='yes' ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-900'}`}
+                      >
+                        <span className="size-5 shrink-0 rounded-full border border-gray-300 grid place-items-center">{hasEV==='yes' ? '✅' : ''}</span>
+                        <span>Yes, I own an EV</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHasEV('planning')}
+                        aria-pressed={hasEV==='planning'}
+                        className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition font-medium ${hasEV==='planning' ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-900'}`}
+                      >
+                        <span className="size-5 shrink-0 rounded-full border border-gray-300 grid place-items-center">{hasEV==='planning' ? '✅' : ''}</span>
+                        <span>Planning to buy an EV soon</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHasEV('no')}
+                        aria-pressed={hasEV==='no'}
+                        className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition font-medium ${hasEV==='no' ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-900'}`}
+                      >
+                        <span className="size-5 shrink-0 rounded-full border border-gray-300 grid place-items-center">{hasEV==='no' ? '❌' : ''}</span>
+                        <span>No, just exploring options</span>
+                      </button>
+                    </div>
 
-                  <div className="mt-5">
-                    <Button data-cta="continue-from-hero" variant="hero" size="lg" className="w-full" onClick={onContinue}>
-                      Continue to Next Question →
-                    </Button>
-                  </div>
+                    <div className="mt-5">
+                      <Button data-cta="continue-from-hero" variant="hero" size="lg" className="w-full" onClick={onContinue}>
+                        Continue to Next Question →
+                      </Button>
+                    </div>
 
-                  <p className="mt-3 text-center text-xs text-muted-foreground">
-                    ✅ Licensed & insured • ✅ Permits handled • ✅ FREE quote
-                  </p>
-                </fieldset>
+                    <p className="mt-3 text-center text-xs text-gray-600">
+                      ✅ Licensed & insured • ✅ Permits handled • ✅ FREE quote
+                    </p>
+                  </fieldset>
+                </div>
               </div>
             </div>
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
               {VALUE_CHIPS.map((chip) => (
                 <li
                   key={chip}
-                  className="rounded-full border border-white/20 bg-background/40 px-3 py-1 text-xs sm:text-sm"
+                  className="rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs sm:text-sm text-white font-medium"
                 >
                   {chip}
                 </li>
