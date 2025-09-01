@@ -1,20 +1,20 @@
-export type AgeOption = "<10" | "10-20" | "20-30" | "30+ / not sure" | "";
+export type ElectricalSystemOption = "Less than 10 years" | "10-20 years" | "20-30 years" | "30+ years / not sure" | "";
 
-export type TripsOption = "Never" | "A few times a year" | "Monthly" | "Weekly" | "Daily" | "";
+export type ChargingFrequencyOption = "Never (planning to buy EV)" | "A few times a week" | "Daily commuting" | "Multiple times daily" | "Commercial/fleet use" | "";
 
-export type LoadOption = "EV charger" | "Home office circuits" | "Heat pump / HVAC" | "Induction range" | "Hot tub / sauna" | "Solar / battery soon" | "Other";
+export type ChargerTypeOption = "Level 1 (120V outlet)" | "Level 2 (240V home charger)" | "Level 3 (DC fast charging)" | "Not sure what I need" | "";
 
-export type HomeSizeOption = "<1500" | "1500-2500" | "2500-4000" | "4000+" | "";
+export type PropertyTypeOption = "Single family home" | "Townhouse/Condo" | "Apartment complex" | "Commercial building" | "";
 
 export interface QuizAnswers {
-  age: AgeOption;
-  trips: TripsOption;
-  loads: LoadOption[];
-  homeSize: HomeSizeOption;
-  sqFtDetail?: string;
-  panelPhoto?: string; // base64 or url
+  electricalSystem: ElectricalSystemOption;
+  chargingFrequency: ChargingFrequencyOption;
+  chargerType: ChargerTypeOption;
+  propertyType: PropertyTypeOption;
+  garageType?: string;
+  currentPanel?: string;
   zip?: string;
-  timeline?: "ASAP" | "30–60 days" | "Exploring budget" | "";
+  timeline?: "ASAP" | "1-2 weeks" | "1-2 months" | "Exploring options" | "";
 }
 
 export type Tier = 1 | 2 | 3;

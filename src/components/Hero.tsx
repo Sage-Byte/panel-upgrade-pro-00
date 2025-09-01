@@ -3,26 +3,26 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 
 const VALUE_CHIPS = [
-  "Cut electricity costs",
-  "Smart load management",
-  "EV-ready + future-proof",
-  "Permits and warranty handled",
+  "Professional installation",
+  "Level 2 fast charging",
+  "Columbus area service",
+  "Permit & inspection handled",
 ];
 
-export type AgeOption = "<10" | "10-20" | "20-30" | "30+ / not sure" | "";
+export type ElectricalSystemOption = "Less than 10 years" | "10-20 years" | "20-30 years" | "30+ years / not sure" | "";
 
 interface HeroProps {
-  age: AgeOption;
-  setAge: (age: AgeOption) => void;
+  electricalSystem: ElectricalSystemOption;
+  setElectricalSystem: (system: ElectricalSystemOption) => void;
   onStartQuiz: () => void;
   onContinue: () => void;
   step: number;
   totalSteps: number;
 }
 
-const Hero = ({ age, setAge, onStartQuiz, onContinue, step, totalSteps }: HeroProps) => {
+const Hero = ({ electricalSystem, setElectricalSystem, onStartQuiz, onContinue, step, totalSteps }: HeroProps) => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
-  const [homeowner, setHomeowner] = useState<"yes" | "no" | "">("");
+  const [hasEV, setHasEV] = useState<"yes" | "no" | "planning" | "">("");
 
   useEffect(() => {
     // Ensure focus ring is visible for accessibility when jumping to Q1
@@ -40,52 +40,61 @@ const Hero = ({ age, setAge, onStartQuiz, onContinue, step, totalSteps }: HeroPr
           <div className="max-w-3xl mx-auto">
             <div className="flex justify-center mb-3">
               <span className="inline-flex items-center gap-2 rounded-full bg-success/15 text-success px-3 py-1 text-xs sm:text-sm">
-                <span aria-hidden>✨</span> Smart Panel Savings Check
+                <span aria-hidden>⚡</span> EV Charger Installation Quote
               </span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center">
-              Smart Panel Savings Check — Estimate Your Annual Savings
+              EV Charger Installation — Get Your Custom Quote
             </h1>
             <p className="mt-3 text-base sm:text-lg md:text-xl text-center opacity-90">
-              Take our <strong>FREE 60‑second savings quiz</strong> to estimate how much a smart panel could save you each year — personalized to your home.
+              Take our <strong>FREE 60‑second assessment</strong> to get a personalized EV charger installation quote for your Columbus area home.
             </p>
             <div className="mt-4 flex items-center justify-center gap-3 text-muted-foreground">
-              <div className="flex gap-1 text-lg" aria-label="4.9 out of 5 stars">
+              <div className="flex gap-1 text-lg" aria-label="5.0 out of 5 stars">
                 <span>⭐️</span><span>⭐️</span><span>⭐️</span><span>⭐️</span><span>⭐️</span>
               </div>
-              <span className="text-sm">4.9/5 from 1,500+ homeowners</span>
+              <span className="text-sm">Licensed electricians • Columbus area</span>
             </div>
             <div
               ref={sectionRef}
               className="mx-auto max-w-2xl rounded-2xl bg-card text-foreground shadow-lg border border-white/10 overflow-hidden focus:outline-none"
             >
               <div className="bg-success/15 text-success px-4 py-2 text-sm flex items-center justify-between">
-                <span>High-end homeowners cut bills and add capacity with smart panels</span>
+                <span>Professional EV charger installation in Columbus area</span>
                 <span aria-hidden>→</span>
               </div>
               <div className="p-5 sm:p-7">
                 <fieldset>
-                  <legend className="text-2xl sm:text-3xl font-semibold text-center mb-2">🏠 Are you a homeowner?</legend>
-                  <p className="text-center text-muted-foreground mb-4">Panel upgrades are typically installed by property owners</p>
+                  <legend className="text-2xl sm:text-3xl font-semibold text-center mb-2">🔌 Do you currently have an electric vehicle?</legend>
+                  <p className="text-center text-muted-foreground mb-4">We install chargers for current and future EV owners</p>
 
                   <div className="space-y-3">
                     <button
                       type="button"
-                      onClick={() => setHomeowner('yes')}
-                      aria-pressed={homeowner==='yes'}
-                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${homeowner==='yes' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
+                      onClick={() => setHasEV('yes')}
+                      aria-pressed={hasEV==='yes'}
+                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${hasEV==='yes' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
                     >
-                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{homeowner==='yes' ? '✅' : ''}</span>
-                      <span className="font-medium">Yes, I own my home</span>
+                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{hasEV==='yes' ? '✅' : ''}</span>
+                      <span className="font-medium">Yes, I own an EV</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setHomeowner('no')}
-                      aria-pressed={homeowner==='no'}
-                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${homeowner==='no' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
+                      onClick={() => setHasEV('planning')}
+                      aria-pressed={hasEV==='planning'}
+                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${hasEV==='planning' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
                     >
-                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{homeowner==='no' ? '❌' : ''}</span>
-                      <span className="font-medium">No, I rent/lease</span>
+                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{hasEV==='planning' ? '✅' : ''}</span>
+                      <span className="font-medium">Planning to buy an EV soon</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHasEV('no')}
+                      aria-pressed={hasEV==='no'}
+                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${hasEV==='no' ? 'border-accent bg-accent/10' : 'border-input bg-background hover:bg-accent/10'}`}
+                    >
+                      <span className="size-5 shrink-0 rounded-full border border-input grid place-items-center">{hasEV==='no' ? '❌' : ''}</span>
+                      <span className="font-medium">No, just exploring options</span>
                     </button>
                   </div>
 
@@ -96,7 +105,7 @@ const Hero = ({ age, setAge, onStartQuiz, onContinue, step, totalSteps }: HeroPr
                   </div>
 
                   <p className="mt-3 text-center text-xs text-muted-foreground">
-                    ✅ Personalized recommendations • ✅ Instant results • ✅ 100% Free
+                    ✅ Licensed & insured • ✅ Permits handled • ✅ FREE quote
                   </p>
                 </fieldset>
               </div>

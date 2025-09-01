@@ -16,11 +16,12 @@ const Index = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<number>(1);
   const [answers, setAnswers] = useState<QuizAnswers>({
-    age: "",
-    trips: "",
-    loads: [],
-    homeSize: "",
-    sqFtDetail: "",
+    electricalSystem: "",
+    chargingFrequency: "",
+    chargerType: "",
+    propertyType: "",
+    garageType: "",
+    currentPanel: "",
     zip: "",
     timeline: "",
   });
@@ -39,16 +40,16 @@ const Index = () => {
 
 
 
-  const seoTitle = "Smart Panel Savings | Cut Electric Bills with Load Control";
-  const seoDesc = "Estimate your annual savings with a smart panel upgrade. Take our 60-second Savings Quiz and see how much you could save.";
+  const seoTitle = "EV Charger Installation Columbus | Electric Medic";
+  const seoDesc = "Professional EV charger installation in Columbus area. Get your custom quote in 60 seconds. Licensed electricians, permits handled.";
 
   return (
     <main>
       <SEOHead title={seoTitle} description={seoDesc} />
       <SiteHeader />
       <Hero
-        age={answers.age as any}
-        setAge={(age) => setAnswers({ ...answers, age })}
+        electricalSystem={answers.electricalSystem as any}
+        setElectricalSystem={(electricalSystem) => setAnswers({ ...answers, electricalSystem })}
         onStartQuiz={onStartQuiz}
         onContinue={onContinueFromHero}
         step={step}

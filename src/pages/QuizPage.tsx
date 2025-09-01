@@ -11,11 +11,12 @@ const QuizPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<number>(1);
   const [answers, setAnswers] = useState<QuizAnswers>({
-    age: "",
-    trips: "",
-    loads: [],
-    homeSize: "",
-    sqFtDetail: "",
+    electricalSystem: "",
+    chargingFrequency: "",
+    chargerType: "",
+    propertyType: "",
+    garageType: "",
+    currentPanel: "",
     zip: "",
     timeline: "",
   });
@@ -26,7 +27,7 @@ const QuizPage = () => {
 
   const onQuizComplete = () => {
     try {
-      localStorage.setItem("panelQuizAnswers", JSON.stringify(answers));
+      localStorage.setItem("evChargerQuizAnswers", JSON.stringify(answers));
     } catch {}
     navigate("/lead");
   };
@@ -37,11 +38,11 @@ const QuizPage = () => {
   };
 
   const downloadReport = () => {
-    const content = `<!doctype html><html><head><meta charset='utf-8'><title>Panel Check Report</title></head><body><h1>Panel Check Report</h1><p>Tiered results and recommendations based on your quiz. Save for your records.</p><pre>${JSON.stringify({ answers, lead }, null, 2)}</pre></body></html>`;
+    const content = `<!doctype html><html><head><meta charset='utf-8'><title>EV Charger Installation Quote</title></head><body><h1>EV Charger Installation Quote</h1><p>Personalized quote and recommendations based on your assessment. Save for your records.</p><pre>${JSON.stringify({ answers, lead }, null, 2)}</pre></body></html>`;
     const blob = new Blob([content], { type: "text/html" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "panel-check-report.html";
+    a.download = "ev-charger-quote.html";
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -50,15 +51,15 @@ const QuizPage = () => {
     document.querySelector("#calendar")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const seoTitle = "Smart Panel Savings Quiz | Estimate Annual Savings";
-  const seoDesc = "Take our 60-second Savings Quiz to get personalized smart panel savings and $200 OFF if you qualify.";
+  const seoTitle = "EV Charger Installation Quiz | Get Your Quote";
+  const seoDesc = "Take our 60-second assessment to get a personalized EV charger installation quote for your Columbus area home.";
 
   return (
     <main>
       <SEOHead title={seoTitle} description={seoDesc} />
 
       <section className="container px-4 py-8">
-        <h1 className="sr-only">Panel Check Questionnaire</h1>
+        <h1 className="sr-only">EV Charger Installation Assessment</h1>
         <Quiz
           answers={answers}
           setAnswers={setAnswers}

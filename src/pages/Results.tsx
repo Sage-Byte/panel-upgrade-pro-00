@@ -7,7 +7,7 @@ import { scoreQuiz } from "@/lib/quizScoring";
 import type { LeadInfo, QuizAnswers } from "@/types/quiz";
 import { useNavigate } from "react-router-dom";
 
-const ANSWERS_KEY = "panelQuizAnswers";
+const ANSWERS_KEY = "evChargerQuizAnswers";
 const LEAD_KEY = "panelLeadInfo";
 
 const Results = () => {
@@ -33,41 +33,43 @@ const Results = () => {
   }, [answers, navigate]);
 
   const summary = useMemo(() => {
-    if (!answers) return { score: 0, tier: 1, percent: 0, annualSavings: 0 } as const;
+    if (!answers) return { score: 0, tier: 1, percent: 0, installationCost: 0 } as const;
     const { score, tier } = scoreQuiz(answers);
-    const maxScore = 12; // from scoring rules
+    const maxScore = 14; // from scoring rules (4+4+4+2)
     const percent = Math.round((score / maxScore) * 100);
 
-    const estimateSavings = (a: QuizAnswers, s: number) => {
-      let base = 250; // base annual savings
-      const billMult: Record<NonNullable<QuizAnswers["trips"]>, number> = {
-        "Never": 0.9,
-        "A few times a year": 1,
-        "Monthly": 1.15,
-        "Weekly": 1.35,
-        "Daily": 1.55,
-        "": 1,
-      } as const;
-      base *= billMult[a.trips || ""] || 1;
-      const loads = new Set(a.loads || []);
-      base += (loads.has("EV charger") ? 200 : 0)
-        + (loads.has("Heat pump / HVAC") ? 150 : 0)
-        + (loads.has("Induction range") ? 120 : 0)
-        + (loads.has("Hot tub / sauna") ? 100 : 0)
-        + (loads.has("Solar / battery soon") ? 200 : 0);
-      if (a.homeSize === "2500-4000") base += 100;
-      if (a.homeSize === "4000+") base += 180;
-      const multiplier = 1 + s / 20; // up to +60%
-      const est = Math.round((base * multiplier) / 10) * 10;
-      return Math.max(200, Math.min(est, 5000));
+    const estimateInstallationCost = (a: QuizAnswers, s: number) => {
+      let baseCost = 800; // Base Level 2 charger installation
+
+      // Charger type complexity
+      if (a.chargerType === "Level 2 (240V home charger)") baseCost += 400;
+      if (a.chargerType === "Level 3 (DC fast charging)") baseCost += 2500;
+      if (a.chargerType === "Not sure what I need") baseCost += 200;
+
+      // Property type installation complexity
+      if (a.propertyType === "Townhouse/Condo") baseCost += 300;
+      if (a.propertyType === "Apartment complex") baseCost += 800;
+      if (a.propertyType === "Commercial building") baseCost += 1500;
+
+      // Electrical system age factors
+      if (a.electricalSystem === "20-30 years") baseCost += 200;
+      if (a.electricalSystem === "30+ years / not sure") baseCost += 500;
+
+      // Usage complexity
+      if (a.chargingFrequency === "Multiple times daily" || a.chargingFrequency === "Commercial/fleet use") {
+        baseCost += 400;
+      }
+
+      const finalCost = Math.round(baseCost / 50) * 50; // Round to nearest $50
+      return Math.max(800, Math.min(finalCost, 8000));
     };
 
-    const annualSavings = estimateSavings(answers, score);
-    return { score, tier, percent, annualSavings } as const;
+    const installationCost = estimateInstallationCost(answers, score);
+    return { score, tier, percent, installationCost } as const;
   }, [answers]);
 
   const downloadReport = () => {
-    const content = `<!doctype html><html><head><meta charset='utf-8'><title>Panel Check Report</title></head><body><h1>Panel Check Report</h1><p>Tiered results and recommendations based on your quiz. Save for your records.</p><pre>${JSON.stringify(
+    const content = `<!doctype html><html><head><meta charset='utf-8'><title>EV Charger Installation Quote</title></head><body><h1>EV Charger Installation Quote</h1><p>Personalized quote and recommendations from Electric Medic. Save for your records.</p><pre>${JSON.stringify(
       { answers, lead },
       null,
       2
@@ -75,7 +77,7 @@ const Results = () => {
     const blob = new Blob([content], { type: "text/html" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "panel-check-report.html";
+    a.download = "ev-charger-quote.html";
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -87,20 +89,20 @@ const Results = () => {
   return (
     <main>
       <SEOHead
-        title="Your Smart Panel Savings Report"
-        description="Estimated annual savings and personalized recommendations for your smart panel upgrade."
+        title="Your EV Charger Installation Quote"
+        description="Personalized EV charger installation quote from Electric Medic in Columbus area."
       />
 
       <section className="container px-4 py-8">
         <div className="max-w-3xl mx-auto space-y-6">
           <header className="rounded-2xl border bg-success/10 p-6 sm:p-8">
-            <p className="text-center text-sm sm:text-base text-success font-medium">Your Smart Panel Savings Potential</p>
+            <p className="text-center text-sm sm:text-base text-success font-medium">Your EV Charger Installation Quote</p>
             <h1 className="text-2xl sm:text-4xl font-extrabold text-center mt-2">
-              Estimated Annual Savings: {new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(summary.annualSavings)}
+              Estimated Cost: {new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(summary.installationCost)}
             </h1>
-            <p className="text-center text-muted-foreground mt-2">Based on your home's characteristics and energy usage</p>
+            <p className="text-center text-muted-foreground mt-2">Professional installation by Electric Medic - Columbus area</p>
             <div className="mt-6 flex items-center justify-center">
-              <Button size="lg" variant="hero" onClick={bookScroll}>Schedule Consultation</Button>
+              <Button size="lg" variant="hero" onClick={bookScroll}>Schedule Free Consultation</Button>
             </div>
           </header>
 

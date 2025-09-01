@@ -1,53 +1,41 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import roofImg from "@/assets/interior-ev-garage.jpg";
-import loadsImg from "@/assets/kitchen-induction.jpg";
-import sizeImg from "@/assets/home-office.jpg";
-import type { QuizAnswers, TripsOption, LoadOption, HomeSizeOption } from "@/types/quiz";
+import evChargerHero from "@/assets/ev-charger-hero.jpg";
+import homeEvCharging from "@/assets/home-ev-charging.jpg";
+import chargerDetail from "@/assets/charger-detail.jpg";
+import type { QuizAnswers, ChargingFrequencyOption, ChargerTypeOption, PropertyTypeOption } from "@/types/quiz";
 
-const STORAGE_KEY = "panel-quiz-answers-v1";
-
-const loadOptions: LoadOption[] = [
-  "EV charger",
-  "Home office circuits",
-  "Heat pump / HVAC",
-  "Induction range",
-  "Hot tub / sauna",
-  "Solar / battery soon",
-  "Other",
-];
+const STORAGE_KEY = "ev-charger-quiz-answers-v1";
 
 // UI helpers for vertically stacked choices with icons
-const tripsOptionList: { value: TripsOption; label: string; icon: string }[] = [
-  { value: "Never", label: "Under $100", icon: "💵" },
-  { value: "A few times a year", label: "$100–$200", icon: "💰" },
-  { value: "Monthly", label: "$200–$300", icon: "📈" },
-  { value: "Weekly", label: "$300–$400", icon: "📊" },
-  { value: "Daily", label: "$400+", icon: "💸" },
+const chargingFrequencyOptions: { value: ChargingFrequencyOption; label: string; icon: string }[] = [
+  { value: "Never (planning to buy EV)", label: "Planning to buy an EV soon", icon: "🔮" },
+  { value: "A few times a week", label: "A few times a week", icon: "📅" },
+  { value: "Daily commuting", label: "Daily commuting", icon: "🚗" },
+  { value: "Multiple times daily", label: "Multiple times daily", icon: "⚡" },
+  { value: "Commercial/fleet use", label: "Commercial/fleet use", icon: "🚛" },
 ];
 
-const loadOptionIcons: Record<LoadOption, string> = {
-  "EV charger": "🚗",
-  "Home office circuits": "💻",
-  "Heat pump / HVAC": "🌬️",
-  "Induction range": "🔥",
-  "Hot tub / sauna": "🛁",
-  "Solar / battery soon": "☀️",
-  Other: "✨",
-};
+const chargerTypeOptions: { value: ChargerTypeOption; label: string; icon: string; description: string }[] = [
+  { value: "Level 1 (120V outlet)", label: "Level 1 (120V outlet)", icon: "🔌", description: "Standard household outlet - slowest charging" },
+  { value: "Level 2 (240V home charger)", label: "Level 2 (240V home charger)", icon: "⚡", description: "Most popular home option - 4-8 hour full charge" },
+  { value: "Level 3 (DC fast charging)", label: "Level 3 (DC fast charging)", icon: "🚀", description: "Commercial-grade fast charging" },
+  { value: "Not sure what I need", label: "Not sure what I need", icon: "❓", description: "We'll recommend the best option for you" },
+];
 
-const homeSizeOptions: { value: HomeSizeOption; label: string; icon: string }[] = [
-  { value: "<1500", label: "Less than 1,500 sq ft", icon: "🏠" },
-  { value: "1500-2500", label: "1,500–2,500 sq ft", icon: "🏡" },
-  { value: "2500-4000", label: "2,500–4,000 sq ft", icon: "🏘️" },
-  { value: "4000+", label: "4,000+ sq ft", icon: "🏛️" },
+const propertyTypeOptions: { value: PropertyTypeOption; label: string; icon: string }[] = [
+  { value: "Single family home", label: "Single family home", icon: "🏠" },
+  { value: "Townhouse/Condo", label: "Townhouse/Condo", icon: "🏘️" },
+  { value: "Apartment complex", label: "Apartment complex", icon: "🏢" },
+  { value: "Commercial building", label: "Commercial building", icon: "🏛️" },
 ];
 
 const timelineOptions: { value: NonNullable<QuizAnswers["timeline"]>; label: string; icon: string }[] = [
   { value: "ASAP", label: "ASAP", icon: "⚡" },
-  { value: "30–60 days", label: "30–60 days", icon: "📅" },
-  { value: "Exploring budget", label: "Exploring budget", icon: "💡" },
+  { value: "1-2 weeks", label: "1-2 weeks", icon: "📅" },
+  { value: "1-2 months", label: "1-2 months", icon: "📆" },
+  { value: "Exploring options", label: "Just exploring options", icon: "💡" },
 ];
 
 interface QuizProps {
@@ -90,11 +78,11 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
   const prev = () => setStep(Math.max(2, step - 1));
 
   return (
-<section id="quiz" className="container px-4 pt-24 pb-12" aria-labelledby="quiz-heading">
+    <section id="quiz" className="container px-4 pt-24 pb-12" aria-labelledby="quiz-heading">
       <div className="max-w-3xl mx-auto min-h-[calc(100vh-160px)] flex flex-col">
-        <h2 id="quiz-heading" className="sr-only">Smart Panel Savings Quiz</h2>
+        <h2 id="quiz-heading" className="sr-only">EV Charger Installation Assessment</h2>
 
-<div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <span className="text-sm" aria-live="polite">Step {step} of {totalSteps}</span>
           <span className="text-sm" aria-hidden>{progress}% Complete</span>
         </div>
@@ -103,25 +91,25 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
         </div>
 
         {step === 2 && (
-<Card className="mt-6 h-full shadow-xl rounded-2xl">
+          <Card className="mt-6 h-full shadow-xl rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl">What’s your average monthly electric bill?</CardTitle>
-              <CardDescription>Select the range that best matches your typical bill.</CardDescription>
+              <CardTitle className="text-2xl">How often do you need to charge an EV?</CardTitle>
+              <CardDescription>This helps us recommend the right charging solution for your needs.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-6">
-              <img src={roofImg} alt="Electric bill example" className="w-full h-48 object-cover rounded-xl border" loading="lazy" />
+              <img src={evChargerHero} alt="EV charging setup" className="w-full h-48 object-cover rounded-xl border" loading="lazy" />
               <div className="space-y-3">
-                {tripsOptionList.map((opt) => (
+                {chargingFrequencyOptions.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
-                    onClick={() => setAnswers({ ...answers, trips: opt.value })}
+                    onClick={() => setAnswers({ ...answers, chargingFrequency: opt.value })}
                     className={`w-full text-left flex items-center gap-3 rounded-xl border p-4 transition ${
-                      answers.trips === opt.value
+                      answers.chargingFrequency === opt.value
                         ? "border-primary bg-primary/5 ring-1 ring-primary"
                         : "border-input bg-background hover:bg-accent/10"
                     }`}
-                    aria-pressed={answers.trips === opt.value}
+                    aria-pressed={answers.chargingFrequency === opt.value}
                   >
                     <span className="text-xl" aria-hidden>{opt.icon}</span>
                     <span className="font-medium">{opt.label}</span>
@@ -137,35 +125,33 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
         )}
 
         {step === 3 && (
-<Card className="mt-6 h-full shadow-xl rounded-2xl">
+          <Card className="mt-6 h-full shadow-xl rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl">Which high‑usage appliances do you have or plan?</CardTitle>
-              <CardDescription>Smart panels can optimize and shift these loads to slash costs.</CardDescription>
+              <CardTitle className="text-2xl">What type of EV charger are you considering?</CardTitle>
+              <CardDescription>Different charger levels provide different charging speeds.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-6">
-              <img src={loadsImg} alt="High-usage appliances" className="w-full h-48 object-cover rounded-xl border" loading="lazy" />
+              <img src={homeEvCharging} alt="Home EV charging options" className="w-full h-48 object-cover rounded-xl border" loading="lazy" />
               <div className="space-y-3">
-                {loadOptions.map((opt) => {
-                  const active = answers.loads.includes(opt);
-                  return (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => {
-                        const set = new Set(answers.loads);
-                        if (active) set.delete(opt); else set.add(opt);
-                        setAnswers({ ...answers, loads: Array.from(set) });
-                      }}
-                      className={`w-full text-left flex items-center gap-3 rounded-xl border p-4 transition ${
-                        active ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-input bg-background hover:bg-accent/10"
-                      }`}
-                      aria-pressed={active}
-                    >
-                      <span className="text-xl" aria-hidden>{loadOptionIcons[opt]}</span>
-                      <span className="font-medium">{opt}</span>
-                    </button>
-                  );
-                })}
+                {chargerTypeOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setAnswers({ ...answers, chargerType: opt.value })}
+                    className={`w-full text-left flex items-start gap-3 rounded-xl border p-4 transition ${
+                      answers.chargerType === opt.value
+                        ? "border-primary bg-primary/5 ring-1 ring-primary"
+                        : "border-input bg-background hover:bg-accent/10"
+                    }`}
+                    aria-pressed={answers.chargerType === opt.value}
+                  >
+                    <span className="text-xl mt-1" aria-hidden>{opt.icon}</span>
+                    <div>
+                      <div className="font-medium">{opt.label}</div>
+                      <div className="text-sm text-muted-foreground">{opt.description}</div>
+                    </div>
+                  </button>
+                ))}
               </div>
               <div className="mt-auto flex justify-between pt-4">
                 <Button variant="outline" onClick={prev}>Previous</Button>
@@ -176,23 +162,23 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
         )}
 
         {step === 4 && (
-<Card className="mt-6 h-full shadow-xl rounded-2xl">
+          <Card className="mt-6 h-full shadow-xl rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl">How big is your home?</CardTitle>
-              <CardDescription>Home size helps estimate baseline energy use.</CardDescription>
+              <CardTitle className="text-2xl">What type of property is this for?</CardTitle>
+              <CardDescription>Installation requirements vary by property type.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-6">
-              <img src={sizeImg} alt="Home interior example" className="w-full h-48 object-cover rounded-xl border" loading="lazy" />
+              <img src={chargerDetail} alt="EV charger installation" className="w-full h-48 object-cover rounded-xl border" loading="lazy" />
               <div className="space-y-3">
-                {homeSizeOptions.map((opt) => (
+                {propertyTypeOptions.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
-                    onClick={() => setAnswers({ ...answers, homeSize: opt.value })}
+                    onClick={() => setAnswers({ ...answers, propertyType: opt.value })}
                     className={`w-full text-left flex items-center gap-3 rounded-xl border p-4 transition ${
-                      answers.homeSize === opt.value ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-input bg-background hover:bg-accent/10"
+                      answers.propertyType === opt.value ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-input bg-background hover:bg-accent/10"
                     }`}
-                    aria-pressed={answers.homeSize === opt.value}
+                    aria-pressed={answers.propertyType === opt.value}
                   >
                     <span className="text-xl" aria-hidden>{opt.icon}</span>
                     <span className="font-medium">{opt.label}</span>
@@ -200,15 +186,13 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
                 ))}
               </div>
               <div>
-                <label className="block text-sm mb-1">Optional: Specific square footage</label>
+                <label className="block text-sm mb-1">Where would you like the charger installed?</label>
                 <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
+                  type="text"
                   className="w-full rounded-md border border-input px-3 py-2 text-sm bg-background"
-                  placeholder="e.g., 3200"
-                  value={answers.sqFtDetail || ""}
-                  onChange={(e) => setAnswers({ ...answers, sqFtDetail: e.target.value })}
+                  placeholder="e.g., Garage, Driveway, Carport"
+                  value={answers.garageType || ""}
+                  onChange={(e) => setAnswers({ ...answers, garageType: e.target.value })}
                 />
               </div>
               <div className="mt-auto flex justify-between pt-4">
@@ -222,22 +206,31 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
         {step === 5 && (
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="text-lg">Q5. Panel brand/photo (optional)</CardTitle>
+              <CardTitle className="text-lg">Tell us about your current electrical panel</CardTitle>
+              <CardDescription>This helps us determine if your panel can handle EV charging.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm mb-1">Upload a clear photo of your panel</label>
+                <label className="block text-sm mb-1">Current electrical panel info (optional)</label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="block w-full text-sm"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const base64 = await fileToBase64(file);
-                    setAnswers({ ...answers, panelPhoto: base64 });
-                  }}
+                  type="text"
+                  className="w-full rounded-md border border-input px-3 py-2 text-sm bg-background"
+                  placeholder="e.g., 200 amp panel, 20 years old, Square D brand"
+                  value={answers.currentPanel || ""}
+                  onChange={(e) => setAnswers({ ...answers, currentPanel: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">ZIP Code</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{5}"
+                  maxLength={5}
+                  className="w-full rounded-md border border-input px-3 py-2 text-sm bg-background"
+                  placeholder="43215"
+                  value={answers.zip || ""}
+                  onChange={(e) => setAnswers({ ...answers, zip: e.target.value })}
                 />
               </div>
               <div className="flex justify-between">
@@ -249,10 +242,10 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
         )}
 
         {step === 6 && (
-<Card className="mt-6 h-full shadow-xl rounded-2xl">
+          <Card className="mt-6 h-full shadow-xl rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl">What’s your project timeline?</CardTitle>
-              <CardDescription>Your timeline helps us tailor scheduling and savings options.</CardDescription>
+              <CardTitle className="text-2xl">What's your installation timeline?</CardTitle>
+              <CardDescription>Your timeline helps us prioritize scheduling and provide accurate quotes.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-6">
               <div>
@@ -278,7 +271,7 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
               </div>
               <div className="mt-auto flex justify-between pt-4">
                 <Button variant="outline" onClick={prev}>Previous</Button>
-                <Button data-cta="finish-quiz" variant="hero" onClick={onQuizComplete}>See my results</Button>
+                <Button data-cta="finish-quiz" variant="hero" onClick={onQuizComplete}>Get my quote</Button>
               </div>
             </CardContent>
           </Card>
@@ -289,12 +282,3 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
 };
 
 export default Quiz;
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}

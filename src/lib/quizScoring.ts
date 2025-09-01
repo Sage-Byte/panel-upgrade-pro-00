@@ -2,37 +2,31 @@ import { QuizAnswers, Tier } from "@/types/quiz";
 
 export function scoreQuiz(a: QuizAnswers): { score: number; tier: Tier } {
   let score = 0;
-  // Age
-  if (a.age === "20-30") score += 2;
-  if (a.age === "30+ / not sure") score += 3;
+  
+  // Electrical system age
+  if (a.electricalSystem === "10-20 years") score += 1;
+  if (a.electricalSystem === "20-30 years") score += 2;
+  if (a.electricalSystem === "30+ years / not sure") score += 3;
 
-  // Trips
-  if (a.trips === "Monthly") score += 1;
-  if (a.trips === "Weekly") score += 2;
-  if (a.trips === "Daily") score += 3;
+  // Charging frequency (higher usage = higher score)
+  if (a.chargingFrequency === "A few times a week") score += 1;
+  if (a.chargingFrequency === "Daily commuting") score += 2;
+  if (a.chargingFrequency === "Multiple times daily") score += 3;
+  if (a.chargingFrequency === "Commercial/fleet use") score += 4;
 
-  // Loads (cap +4)
-  const loads = new Set(a.loads || []);
-  const relevant = [
-    "EV charger",
-    "Induction range",
-    "Heat pump / HVAC",
-    "Hot tub / sauna",
-    "Solar / battery soon",
-  ];
-  let loadsScore = 0;
-  for (const l of relevant) {
-    if (loads.has(l as any)) loadsScore += 1;
-  }
-  score += Math.min(loadsScore, 4);
+  // Charger type complexity
+  if (a.chargerType === "Level 2 (240V home charger)") score += 2;
+  if (a.chargerType === "Level 3 (DC fast charging)") score += 4;
+  if (a.chargerType === "Not sure what I need") score += 1;
 
-  // Home size
-  if (a.homeSize === "2500-4000") score += 1;
-  if (a.homeSize === "4000+") score += 2;
+  // Property type installation complexity
+  if (a.propertyType === "Townhouse/Condo") score += 1;
+  if (a.propertyType === "Apartment complex") score += 2;
+  if (a.propertyType === "Commercial building") score += 3;
 
   let tier: Tier = 1;
-  if (score >= 7) tier = 3; // Upgrade Recommended
-  else if (score >= 4) tier = 2; // Consider Upgrade
+  if (score >= 8) tier = 3; // Complex Installation
+  else if (score >= 4) tier = 2; // Standard Installation
 
   return { score, tier };
 }
