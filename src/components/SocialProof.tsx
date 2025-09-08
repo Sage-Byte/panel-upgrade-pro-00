@@ -46,7 +46,7 @@ const SocialProof = () => {
   return (
     <section className="container px-4 py-12" aria-labelledby="proof-heading">
       <div className="text-center mb-8">
-        <h2 id="proof-heading" className="text-2xl sm:text-3xl font-bold">EV Charger Installation — Get Your Custom Quote</h2>
+        <h2 id="proof-heading" className="text-2xl sm:text-3xl font-bold">Results our panel clients rave about</h2>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
