@@ -87,7 +87,7 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
           <span className="text-sm" aria-hidden>{progress}% Complete</span>
         </div>
         <div className="h-2 w-full rounded bg-muted">
-          <div className="h-2 rounded bg-accent" style={{ width: `${progress}%` }} />
+          <div className="h-2 rounded bg-primary" style={{ width: `${progress}%` }} />
         </div>
 
         {step === 2 && (
@@ -118,7 +118,7 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
               </div>
               <div className="mt-auto flex justify-between pt-4">
                 <Button variant="outline" onClick={prev}>Previous</Button>
-                <Button variant="accent" onClick={next}>Next</Button>
+                <Button onClick={next}>Next</Button>
               </div>
             </CardContent>
           </Card>
@@ -155,7 +155,7 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
               </div>
               <div className="mt-auto flex justify-between pt-4">
                 <Button variant="outline" onClick={prev}>Previous</Button>
-                <Button variant="accent" onClick={next}>Next</Button>
+                <Button onClick={next}>Next</Button>
               </div>
             </CardContent>
           </Card>
@@ -197,7 +197,7 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
               </div>
               <div className="mt-auto flex justify-between pt-4">
                 <Button variant="outline" onClick={prev}>Previous</Button>
-                <Button variant="accent" onClick={next}>Next</Button>
+                <Button onClick={next}>Next</Button>
               </div>
             </CardContent>
           </Card>
@@ -235,7 +235,7 @@ const Quiz = ({ answers, setAnswers, setStepGlobal, onQuizComplete }: QuizProps)
               </div>
               <div className="flex justify-between">
                 <Button variant="outline" onClick={prev}>Back</Button>
-                <Button variant="accent" onClick={next}>Next</Button>
+                <Button onClick={next}>Next</Button>
               </div>
             </CardContent>
           </Card>
