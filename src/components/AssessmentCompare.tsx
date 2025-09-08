@@ -15,7 +15,7 @@ export default function AssessmentCompare() {
           >
             EV Charger Installation — Get Your Custom Quote
           </h2>
-          <p className="mt-3 text-foreground">
+          <p className="mt-3 text-black">
             Don't overpay for EV charger installation. Our 60‑second assessment
             ensures you get the right charger setup for your home at the best price.
           </p>
