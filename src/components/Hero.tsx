@@ -44,13 +44,13 @@ const Hero = ({ electricalSystem, setElectricalSystem, onStartQuiz, onContinue, 
                 <span aria-hidden>⚡</span> EV Charger Installation Quote
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center text-black">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-center text-white">
               EV Charger Installation — Get Your Custom Quote
             </h1>
-            <p className="mt-3 text-base sm:text-lg md:text-xl text-center text-black font-medium">
-              Take our <strong className="text-black">FREE 60‑second assessment</strong> to get a personalized EV charger installation quote for your Columbus area home.
+            <p className="mt-3 text-base sm:text-lg md:text-xl text-center text-white font-medium">
+              Take our <strong className="text-white">FREE 60‑second assessment</strong> to get a personalized EV charger installation quote for your Columbus area home.
             </p>
-            <div className="mt-4 flex items-center justify-center gap-3 text-black">
+            <div className="mt-4 flex items-center justify-center gap-3 text-white">
               <div className="flex gap-1 text-lg" aria-label="5.0 out of 5 stars">
                 <span>⭐️</span><span>⭐️</span><span>⭐️</span><span>⭐️</span><span>⭐️</span>
               </div>

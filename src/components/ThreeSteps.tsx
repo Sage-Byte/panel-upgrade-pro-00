@@ -9,21 +9,21 @@ interface ThreeStepsProps {
 const steps = [
   {
     num: "01",
-    title: "Claim Your Coupon",
+    title: "Get Your Quote",
     desc:
-      "Tap below to claim $200 OFF and start your free 60‑second Panel Check.",
+      "Take our free 60‑second assessment to get your personalized EV charger installation quote.",
   },
   {
     num: "02",
-    title: "Personalized Quote",
+    title: "Personalized Recommendation",
     desc:
-      "Share a few details and we’ll recommend the safest, EV‑ready options for your home.",
+      "Share a few details and we'll recommend the best EV charging solution for your home.",
   },
   {
     num: "03",
-    title: "Installation",
+    title: "Professional Installation",
     desc:
-      "Approve your quote and our licensed pros handle the upgrade—fast, clean, and code‑compliant.",
+      "Approve your quote and our licensed electricians handle the installation—fast, clean, and code‑compliant.",
   },
 ];
 
@@ -39,7 +39,7 @@ export default function ThreeSteps({ onCTAClick }: ThreeStepsProps) {
             id="three-steps-heading"
             className="text-2xl sm:text-3xl font-bold tracking-tight"
           >
-            Get started in three easy steps
+            EV Charger Installation — Get Your Custom Quote
           </h2>
         </header>
 
@@ -67,10 +67,10 @@ export default function ThreeSteps({ onCTAClick }: ThreeStepsProps) {
             size="lg"
             variant="hero"
             onClick={onCTAClick}
-            aria-label="Start your free panel check"
+            aria-label="Get your EV charger quote"
           >
             <ArrowRightCircle className="mr-2" />
-            Start Your FREE Panel Check
+            Get My EV Charger Quote
           </Button>
         </div>
       </div>

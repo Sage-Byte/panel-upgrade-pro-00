@@ -9,7 +9,6 @@ import BottomCTA from "@/components/BottomCTA";
 import SiteFooter from "@/components/SiteFooter";
 import MobileStickyCTA from "@/components/MobileStickyCTA";
 import SiteHeader from "@/components/SiteHeader";
-import AssessmentCompare from "@/components/AssessmentCompare";
 import type { QuizAnswers } from "@/types/quiz";
 
 const Index = () => {
@@ -55,17 +54,9 @@ const Index = () => {
         step={step}
         totalSteps={totalSteps}
       />
-      <AssessmentCompare />
-      
       <Benefits />
       <SocialProof />
       <ThreeSteps onCTAClick={() => navigate("/quiz")} />
-      
-
-
-
-
-
       <BottomCTA onCTAClick={() => navigate("/quiz")} />
       <SiteFooter />
 
