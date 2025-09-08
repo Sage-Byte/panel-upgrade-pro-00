@@ -39,8 +39,8 @@ const LeadGate = ({ onSubmitted }: LeadGateProps) => {
     <section className="container px-4 py-12" aria-labelledby="leadgate-heading">
       <div className="max-w-2xl mx-auto">
         <div className="bg-card border rounded-2xl shadow-lg p-6 md:p-8">
-          <h2 id="leadgate-heading" className="text-2xl font-bold text-center">Get Your Safety & Capacity Report</h2>
-          <p className="mt-2 text-muted-foreground text-center">Just a few details so we can send your personalized panel report and apply your $200 OFF.</p>
+          <h2 id="leadgate-heading" className="text-2xl font-bold text-center">EV Charger Installation — Get Your Custom Quote</h2>
+          <p className="mt-2 text-muted-foreground text-center">Just a few details so we can send your personalized EV charger installation quote and schedule your consultation.</p>
 
           <div className="mt-6 space-y-4">
             <div>
@@ -104,7 +104,7 @@ const LeadGate = ({ onSubmitted }: LeadGateProps) => {
                 className="mt-1"
               />
               <span>
-                Your information is secure and will only be used to provide your panel report and contact you about your results. Message/data rates may apply.
+                Your information is secure and will only be used to provide your EV charger installation quote and contact you about scheduling your consultation. Message/data rates may apply.
               </span>
             </label>
 
@@ -112,7 +112,7 @@ const LeadGate = ({ onSubmitted }: LeadGateProps) => {
 
             <div className="flex justify-end">
               <Button data-cta="lead-submit" variant="hero" onClick={submit} disabled={loading}>
-                {loading ? "Submitting..." : "Get My Report"}
+                {loading ? "Submitting..." : "Get My Quote"}
               </Button>
             </div>
           </div>
