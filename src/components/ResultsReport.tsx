@@ -71,25 +71,6 @@ const ResultsReport = ({ answers, onDownload, onBookScroll }: ResultsReportProps
           </CardContent>
         </Card>
 
-        <Card className="bg-success/10 border-success/30">
-          <CardHeader>
-            <CardTitle className="text-success">What Happens Next</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-start gap-3">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-success text-success-foreground text-xs">1</span>
-              <p>Schedule your free consultation with Electric Medic's licensed electricians.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-success text-success-foreground text-xs">2</span>
-              <p>We'll conduct a site inspection and provide your final quote with installation timeline.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-success text-success-foreground text-xs">3</span>
-              <p>Professional installation with permits handled - start charging your EV safely!</p>
-            </div>
-          </CardContent>
-        </Card>
 
         <div className="text-center">
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

@@ -31,6 +31,20 @@ const Results = () => {
       return () => clearTimeout(t);
     }
   }, [answers, navigate]);
+  
+  // Add script for GHL calendar iframe
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = "https://link.wattleads.com/js/form_embed.js";
+    script.type = "text/javascript";
+    script.async = true;
+    document.body.appendChild(script);
+
+    // Clean up function to remove script when component unmounts
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const summary = useMemo(() => {
     if (!answers) return { score: 0, tier: 1, percent: 0, installationCost: 0 } as const;
@@ -109,6 +123,23 @@ const Results = () => {
           {answers && (
             <ResultsReport answers={answers} onDownload={downloadReport} onBookScroll={bookScroll} />
           )}
+        </div>
+      </section>
+
+      <section className="container px-4 py-12" id="calendar" aria-labelledby="calendar-heading">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 id="calendar-heading" className="text-2xl sm:text-3xl font-bold">Book Your Free Consultation</h2>
+          <p className="mt-2 text-muted-foreground">Choose a time that works for you. Our licensed electricians will review your results and provide next steps.</p>
+          
+          <div className="mt-6 w-full">
+            <iframe 
+              src="https://link.wattleads.com/widget/booking/k7RqGxumfpwdIfSp4hYO" 
+              style={{ width: "100%", border: "none", overflow: "hidden", height: "650px" }} 
+              scrolling="no" 
+              id="k7RqGxumfpwdIfSp4hYO_1757369186421"
+              title="Electric Medic Consultation Booking"
+            ></iframe>
+          </div>
         </div>
       </section>
 
