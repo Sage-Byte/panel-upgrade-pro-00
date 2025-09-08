@@ -52,7 +52,7 @@ const Loading = () => {
 
   return (
     <main>
-      <SEOHead title="Calculating Your Results" description="We’re preparing your personalized panel readiness report." />
+      <SEOHead title="Preparing Your EV Charger Quote" description="We're preparing your personalized EV charger installation quote." />
       <section className="container px-4 py-10">
         <div className="max-w-3xl mx-auto">
           <div className="rounded-2xl border bg-card shadow-sm p-6 sm:p-8">
@@ -61,8 +61,8 @@ const Loading = () => {
                 <Loader2 className="size-6 animate-spin" aria-hidden />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Calculating Your Panel Readiness</h1>
-                <p className="text-muted-foreground">Our expert is analyzing your potential needs…</p>
+                <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Preparing Your EV Charger Quote</h1>
+                <p className="text-muted-foreground">Our expert is calculating your custom installation quote…</p>
               </div>
             </div>
 
