@@ -39,7 +39,7 @@ export default function ThreeSteps({ onCTAClick }: ThreeStepsProps) {
             id="three-steps-heading"
             className="text-2xl sm:text-3xl font-bold tracking-tight"
           >
-            Get started in three easy steps
+            EV Charger Installation — Get Your Custom Quote
           </h2>
         </header>
 

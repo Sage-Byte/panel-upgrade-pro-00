@@ -60,20 +60,6 @@ const SocialProof = () => {
         ))}
       </div>
 
-      <div className="mt-8 grid md:grid-cols-3 gap-4">
-        {cases.map((c) => (
-          <Card key={c.title}>
-            <CardHeader>
-              <CardTitle className="text-lg">{c.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <img src={c.img} alt={`${c.title} case study`} className="w-full h-auto rounded-md" loading="lazy" />
-              <p className="text-sm"><strong>Scope:</strong> {c.scope}</p>
-              <p className="text-sm"><strong>Outcome:</strong> {c.outcome}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
 
       <div className="mt-8 text-center">
         <p className="text-sm text-muted-foreground">Licensed • Insured • Permit & inspection included • Manufacturer warranty</p>

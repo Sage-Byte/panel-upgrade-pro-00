@@ -5,7 +5,7 @@ export default function AssessmentCompare() {
   return (
     <section
       aria-labelledby="panel-mistake-heading"
-      className="py-12 sm:py-16"
+      className="py-8 sm:py-12"
     >
       <div className="container px-4">
         <header className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
@@ -13,12 +13,11 @@ export default function AssessmentCompare() {
             id="panel-mistake-heading"
             className="text-2xl sm:text-3xl font-bold tracking-tight"
           >
-            The $15,000 Mistake Most Homeowners Make
+            EV Charger Installation — Get Your Custom Quote
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Some electricians recommend full service replacements when a targeted
-            panel upgrade would do. Our 60‑second Panel Check clarifies what you
-            actually need.
+            Don't overpay for EV charger installation. Our 60‑second assessment
+            ensures you get the right charger setup for your home at the best price.
           </p>
         </header>
 
