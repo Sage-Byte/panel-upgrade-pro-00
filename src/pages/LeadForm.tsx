@@ -18,54 +18,75 @@ const LeadForm = () => {
     }
   }, []);
 
-  // Add script to the document when component mounts
+  // Add scripts to the document when component mounts
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = "https://link.wattleads.com/js/form_embed.js";
-    script.async = true;
-    document.body.appendChild(script);
+    // Add GHL form embed script
+    const ghlScript = document.createElement('script');
+    ghlScript.src = "https://link.wattleads.com/js/form_embed.js";
+    ghlScript.async = true;
+    document.body.appendChild(ghlScript);
 
-    // Clean up function to remove script when component unmounts
+    // Add URL parameter passing script
+    const paramScript = document.createElement('script');
+    paramScript.textContent = `
+      (function () {
+        // adjust the selector to match your embed if needed
+        var iframe = document.querySelector('iframe[src*="form.gohighlevel.com"], iframe[src*="app.gohighlevel.com"], iframe[src*="wattleads.com"]');
+        if (!iframe) return;
+        var parentQS = window.location.search; // "?c_ad_id=TEST123&..."
+        if (!parentQS) return;
+        var src = new URL(iframe.src, window.location.origin);
+        // keep any existing params on the iframe and append the parent's params
+        if (src.search) iframe.src = src + '&' + parentQS.slice(1);
+        else iframe.src = src + parentQS;
+      })();
+    `;
+    document.body.appendChild(paramScript);
+
+    // Clean up function to remove scripts when component unmounts
     return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
+      if (document.body.contains(ghlScript)) {
+        document.body.removeChild(ghlScript);
+      }
+      if (document.body.contains(paramScript)) {
+        document.body.removeChild(paramScript);
       }
     };
   }, []);
 
-  // Build GHL form URL with quiz data as parameters
-  const buildGHLUrl = () => {
-    const baseUrl = "https://link.wattleads.com/widget/form/ySg5U4byfiXezPTgSxBK";
-    
-    if (!quizAnswers) return baseUrl;
-    
-    const params = new URLSearchParams();
-    
-    // Map quiz answers to GHL custom fields
-    if (quizAnswers.electricalSystem) {
-      params.append('electrical_system', quizAnswers.electricalSystem);
+  // Set URL parameters based on quiz answers
+  useEffect(() => {
+    if (quizAnswers) {
+      const params = new URLSearchParams();
+      
+      // Map quiz answers to GHL custom fields
+      if (quizAnswers.electricalSystem) {
+        params.append('electrical_system', quizAnswers.electricalSystem);
+      }
+      if (quizAnswers.chargingFrequency) {
+        params.append('charging_frequency', quizAnswers.chargingFrequency);
+      }
+      if (quizAnswers.chargerType) {
+        params.append('charger_type', quizAnswers.chargerType);
+      }
+      if (quizAnswers.propertyType) {
+        params.append('property_type', quizAnswers.propertyType);
+      }
+      if (quizAnswers.garageType) {
+        params.append('garage_type', quizAnswers.garageType);
+      }
+      if (quizAnswers.currentPanel) {
+        params.append('current_panel', quizAnswers.currentPanel);
+      }
+      if (quizAnswers.timeline) {
+        params.append('timeline', quizAnswers.timeline);
+      }
+      
+      // Update the URL with parameters
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState({}, '', newUrl);
     }
-    if (quizAnswers.chargingFrequency) {
-      params.append('charging_frequency', quizAnswers.chargingFrequency);
-    }
-    if (quizAnswers.chargerType) {
-      params.append('charger_type', quizAnswers.chargerType);
-    }
-    if (quizAnswers.propertyType) {
-      params.append('property_type', quizAnswers.propertyType);
-    }
-    if (quizAnswers.garageType) {
-      params.append('garage_type', quizAnswers.garageType);
-    }
-    if (quizAnswers.currentPanel) {
-      params.append('current_panel', quizAnswers.currentPanel);
-    }
-    if (quizAnswers.timeline) {
-      params.append('timeline', quizAnswers.timeline);
-    }
-    
-    return `${baseUrl}?${params.toString()}`;
-  };
+  }, [quizAnswers]);
 
   // Handle iframe load to stop loading state
   const handleIframeLoad = () => {
@@ -102,7 +123,7 @@ const LeadForm = () => {
             style={{ height: "600px" }}
           >
             <iframe
-              src={buildGHLUrl()}
+              src="https://link.wattleads.com/widget/form/ySg5U4byfiXezPTgSxBK"
               style={{ width: "100%", height: "100%", border: "none", borderRadius: "3px" }}
               id="inline-ySg5U4byfiXezPTgSxBK" 
               data-layout="{'id':'INLINE'}"
