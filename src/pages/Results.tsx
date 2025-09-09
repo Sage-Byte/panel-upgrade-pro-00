@@ -42,8 +42,22 @@ const Results = () => {
 
     // Clean up function to remove script when component unmounts
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
+  }, []);
+
+  // Add Facebook Lead tracking event
+  useEffect(() => {
+    const trackLead = () => {
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Lead');
+      }
+    };
+
+    // Track lead when component mounts
+    trackLead();
   }, []);
 
   const summary = useMemo(() => {

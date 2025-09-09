@@ -1,9 +1,21 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ThankYou = () => {
   const params = new URLSearchParams(window.location.search);
   const name = useMemo(() => params.get("name") || "", [params]);
+
+  // Add Facebook Schedule tracking event
+  useEffect(() => {
+    const trackSchedule = () => {
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Schedule');
+      }
+    };
+
+    // Track schedule when component mounts
+    trackSchedule();
+  }, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5">

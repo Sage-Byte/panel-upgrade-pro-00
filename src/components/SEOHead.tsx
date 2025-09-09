@@ -8,13 +8,18 @@ interface SEOHeadProps {
 
 const SEOHead = ({ title, description, url }: SEOHeadProps) => {
   useEffect(() => {
-    // Add Meta Pixel Code
+    // Add Meta Pixel Code - with better duplicate prevention
     const addMetaPixel = () => {
-      // Check if pixel is already added
-      if (document.querySelector('script[src*="fbevents.js"]')) return;
+      const pixelId = '1289737262947490';
+      const scriptId = 'meta-pixel-script';
+      const noscriptId = 'meta-pixel-noscript';
+      
+      // Check if pixel is already added using unique IDs
+      if (document.getElementById(scriptId)) return;
       
       // Add the main script
       const script = document.createElement('script');
+      script.id = scriptId;
       script.textContent = `
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -24,19 +29,15 @@ const SEOHead = ({ title, description, url }: SEOHeadProps) => {
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1289737262947490');
+        fbq('init', '${pixelId}');
         fbq('track', 'PageView');
       `;
       document.head.appendChild(script);
       
       // Add noscript fallback
       const noscript = document.createElement('noscript');
-      const img = document.createElement('img');
-      img.height = 1;
-      img.width = 1;
-      img.style.display = 'none';
-      img.src = 'https://www.facebook.com/tr?id=1289737262947490&ev=PageView&noscript=1';
-      noscript.appendChild(img);
+      noscript.id = noscriptId;
+      noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1" />`;
       document.head.appendChild(noscript);
     };
 
