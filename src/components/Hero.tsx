@@ -101,7 +101,19 @@ const Hero = ({ electricalSystem, setElectricalSystem, onStartQuiz, onContinue, 
                     </div>
 
                     <div className="mt-5">
-                      <Button data-cta="continue-from-hero" variant="hero" size="lg" className="w-full" onClick={onContinue}>
+                      <Button 
+                        data-cta="continue-from-hero" 
+                        variant="hero" 
+                        size="lg" 
+                        className="w-full" 
+                        onClick={() => {
+                          // Save EV ownership data to localStorage
+                          if (hasEV) {
+                            localStorage.setItem("evOwnership", hasEV);
+                          }
+                          onContinue();
+                        }}
+                      >
                         Continue to Next Question →
                       </Button>
                     </div>

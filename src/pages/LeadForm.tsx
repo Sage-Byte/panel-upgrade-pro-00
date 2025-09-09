@@ -5,16 +5,22 @@ import type { QuizAnswers } from "@/types/quiz";
 const LeadForm = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
+  const [evOwnership, setEvOwnership] = useState<string | null>(null);
 
-  // Retrieve quiz answers from localStorage
+  // Retrieve quiz answers and EV ownership from localStorage
   useEffect(() => {
     try {
       const answers = localStorage.getItem("evChargerQuizAnswers");
       if (answers) {
         setQuizAnswers(JSON.parse(answers));
       }
+      
+      const evOwnershipData = localStorage.getItem("evOwnership");
+      if (evOwnershipData) {
+        setEvOwnership(evOwnershipData);
+      }
     } catch (error) {
-      console.error("Error loading quiz answers:", error);
+      console.error("Error loading data:", error);
     }
   }, []);
 
@@ -54,12 +60,17 @@ const LeadForm = () => {
     };
   }, []);
 
-  // Set URL parameters based on quiz answers
+  // Set URL parameters based on quiz answers and EV ownership
   useEffect(() => {
+    const params = new URLSearchParams();
+    
+    // Add EV ownership data
+    if (evOwnership) {
+      params.append('ev_ownership', evOwnership);
+    }
+    
+    // Map quiz answers to GHL custom fields
     if (quizAnswers) {
-      const params = new URLSearchParams();
-      
-      // Map quiz answers to GHL custom fields
       if (quizAnswers.electricalSystem) {
         params.append('electrical_system', quizAnswers.electricalSystem);
       }
@@ -81,12 +92,14 @@ const LeadForm = () => {
       if (quizAnswers.timeline) {
         params.append('timeline', quizAnswers.timeline);
       }
-      
-      // Update the URL with parameters
+    }
+    
+    // Update the URL with parameters if we have any
+    if (params.toString()) {
       const newUrl = `${window.location.pathname}?${params.toString()}`;
       window.history.replaceState({}, '', newUrl);
     }
-  }, [quizAnswers]);
+  }, [quizAnswers, evOwnership]);
 
   // Handle iframe load to stop loading state
   const handleIframeLoad = () => {
