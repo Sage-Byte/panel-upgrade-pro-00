@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import SEOHead from "@/components/SEOHead";
 
 const ThankYou = () => {
   const params = new URLSearchParams(window.location.search);
@@ -7,48 +8,31 @@ const ThankYou = () => {
 
   // Add Facebook Schedule tracking event
   useEffect(() => {
-    // Add Schedule tracking script to head
-    const scriptId = 'meta-pixel-schedule-tracking';
-    
-    // Check if script already exists
-    if (document.getElementById(scriptId)) return;
-    
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.textContent = `
-      if (typeof fbq !== 'undefined') {
-        fbq('track', 'Schedule');
-        console.log('Schedule event fired via script');
-      } else {
-        console.log('fbq not available in script');
-      }
-    `;
-    document.head.appendChild(script);
-
-    // Also try the function approach as backup
     const trackSchedule = () => {
       if (typeof window !== 'undefined' && (window as any).fbq) {
-        console.log('Firing Schedule event via function');
+        console.log('Firing Schedule event');
         (window as any).fbq('track', 'Schedule');
+      } else {
+        console.log('fbq not available yet, waiting for pixel to load...');
+        // Wait for pixel to load and try again
+        setTimeout(() => {
+          if (typeof window !== 'undefined' && (window as any).fbq) {
+            console.log('Firing Schedule event (after pixel load)');
+            (window as any).fbq('track', 'Schedule');
+          } else {
+            console.log('fbq still not available after delay');
+          }
+        }, 2000);
       }
     };
 
-    // Try immediately and after a delay
+    // Track schedule when component mounts
     trackSchedule();
-    setTimeout(trackSchedule, 500);
-    setTimeout(trackSchedule, 2000);
-
-    // Cleanup
-    return () => {
-      const existingScript = document.getElementById(scriptId);
-      if (existingScript) {
-        document.head.removeChild(existingScript);
-      }
-    };
   }, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5">
+      <SEOHead title="Thank You - EV Charger Installation" description="Thank you for booking your EV charger installation consultation with Electric Medic." />
       <section className="container px-4 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
