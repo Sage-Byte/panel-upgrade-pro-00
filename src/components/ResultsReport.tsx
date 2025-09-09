@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { scoreQuiz } from "@/lib/quizScoring";
 import type { QuizAnswers } from "@/types/quiz";
@@ -6,11 +5,9 @@ import { useMemo } from "react";
 
 interface ResultsReportProps {
   answers: QuizAnswers;
-  onDownload: () => void;
-  onBookScroll: () => void;
 }
 
-const ResultsReport = ({ answers, onDownload, onBookScroll }: ResultsReportProps) => {
+const ResultsReport = ({ answers }: ResultsReportProps) => {
   const { score, tier } = useMemo(() => scoreQuiz(answers), [answers]);
 
   const estimateInstallationCost = (a: QuizAnswers, s: number) => {
@@ -72,12 +69,6 @@ const ResultsReport = ({ answers, onDownload, onBookScroll }: ResultsReportProps
         </Card>
 
 
-        <div className="text-center">
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button data-cta="book-call" variant="hero" onClick={onBookScroll}>Schedule Free Consultation</Button>
-            <Button variant="outline" onClick={onDownload}>Download Quote (HTML)</Button>
-          </div>
-        </div>
       </div>
     </section>
   );

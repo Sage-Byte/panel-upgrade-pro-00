@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import SEOHead from "@/components/SEOHead";
 import ResultsReport from "@/components/ResultsReport";
 
-import { Button } from "@/components/ui/button";
 import { scoreQuiz } from "@/lib/quizScoring";
 import type { LeadInfo, QuizAnswers } from "@/types/quiz";
 import { useNavigate } from "react-router-dom";
@@ -106,23 +105,6 @@ const Results = () => {
     return { score, tier, percent, installationCost } as const;
   }, [answers]);
 
-  const downloadReport = () => {
-    const content = `<!doctype html><html><head><meta charset='utf-8'><title>EV Charger Installation Quote</title></head><body><h1>EV Charger Installation Quote</h1><p>Personalized quote and recommendations from Electric Medic. Save for your records.</p><pre>${JSON.stringify(
-      { answers, lead },
-      null,
-      2
-    )}</pre></body></html>`;
-    const blob = new Blob([content], { type: "text/html" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "ev-charger-quote.html";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
-
-  const bookScroll = () => {
-    document.querySelector("#calendar")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <main>
@@ -139,13 +121,10 @@ const Results = () => {
               Estimated Cost: {new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(summary.installationCost)}
             </h1>
             <p className="text-center text-muted-foreground mt-2">Professional installation by Electric Medic - Columbus area</p>
-            <div className="mt-6 flex items-center justify-center">
-              <Button size="lg" variant="hero" onClick={bookScroll}>Schedule Free Consultation</Button>
-            </div>
           </header>
 
           {answers && (
-            <ResultsReport answers={answers} onDownload={downloadReport} onBookScroll={bookScroll} />
+            <ResultsReport answers={answers} />
           )}
         </div>
       </section>
