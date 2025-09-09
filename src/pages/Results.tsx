@@ -50,14 +50,44 @@ const Results = () => {
 
   // Add Facebook Lead tracking event
   useEffect(() => {
+    // Add Lead tracking script to head
+    const scriptId = 'meta-pixel-lead-tracking';
+    
+    // Check if script already exists
+    if (document.getElementById(scriptId)) return;
+    
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.textContent = `
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'Lead');
+        console.log('Lead event fired via script');
+      } else {
+        console.log('fbq not available in script');
+      }
+    `;
+    document.head.appendChild(script);
+
+    // Also try the function approach as backup
     const trackLead = () => {
       if (typeof window !== 'undefined' && (window as any).fbq) {
+        console.log('Firing Lead event via function');
         (window as any).fbq('track', 'Lead');
       }
     };
 
-    // Track lead when component mounts
+    // Try immediately and after a delay
     trackLead();
+    setTimeout(trackLead, 500);
+    setTimeout(trackLead, 2000);
+
+    // Cleanup
+    return () => {
+      const existingScript = document.getElementById(scriptId);
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
   }, []);
 
   const summary = useMemo(() => {

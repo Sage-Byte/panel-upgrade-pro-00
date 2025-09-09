@@ -7,14 +7,44 @@ const ThankYou = () => {
 
   // Add Facebook Schedule tracking event
   useEffect(() => {
+    // Add Schedule tracking script to head
+    const scriptId = 'meta-pixel-schedule-tracking';
+    
+    // Check if script already exists
+    if (document.getElementById(scriptId)) return;
+    
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.textContent = `
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'Schedule');
+        console.log('Schedule event fired via script');
+      } else {
+        console.log('fbq not available in script');
+      }
+    `;
+    document.head.appendChild(script);
+
+    // Also try the function approach as backup
     const trackSchedule = () => {
       if (typeof window !== 'undefined' && (window as any).fbq) {
+        console.log('Firing Schedule event via function');
         (window as any).fbq('track', 'Schedule');
       }
     };
 
-    // Track schedule when component mounts
+    // Try immediately and after a delay
     trackSchedule();
+    setTimeout(trackSchedule, 500);
+    setTimeout(trackSchedule, 2000);
+
+    // Cleanup
+    return () => {
+      const existingScript = document.getElementById(scriptId);
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
   }, []);
 
   return (
