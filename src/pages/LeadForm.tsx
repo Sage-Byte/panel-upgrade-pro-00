@@ -138,21 +138,39 @@ const LeadForm = () => {
         notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
       };
 
-      const opportunityResponse = await fetch('/api/create-opportunity-fresh', {
+      // Call GHL API directly - this works!
+      const opportunityResponse = await fetch('https://services.leadconnectorhq.com/opportunities/', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer pit-c8aaff13-e75a-4852-9d5a-ef7eac38b4a8`,
           'Content-Type': 'application/json',
+          'Version': '2021-07-28'
         },
-        body: JSON.stringify(opportunityData)
+        body: JSON.stringify({
+          name: `EV Charger Installation - ${formData.fullName}`,
+          status: 'open',
+          contactId: contact.contact?.id || contact.id,
+          monetaryValue: 0,
+          pipelineId: 'uawoqNEqdaeDXFMuyFTt', // Paid Ads Pipeline
+          locationId: '3xmKQz6eOk6ij1aSfTFF', // Electric Medic
+          source: 'EV Charger Funnel'
+        })
       });
 
-      if (!opportunityResponse.ok) {
-        const errorText = await opportunityResponse.text();
-        throw new Error(`Failed to create opportunity: ${opportunityResponse.status} - ${errorText}`);
-      }
+      const opportunityResponseText = await opportunityResponse.text();
+      console.log('GHL Opportunity API Response:', opportunityResponse.status, opportunityResponseText);
 
-      const opportunity = await opportunityResponse.json();
-      console.log('✅ Opportunity created:', opportunity);
+      if (!opportunityResponse.ok) {
+        // Handle duplicate opportunity gracefully
+        if (opportunityResponse.status === 400 && opportunityResponseText.includes('duplicate opportunity')) {
+          console.log('✅ Contact already has an opportunity (this is normal)');
+        } else {
+          console.error('❌ Opportunity creation failed:', opportunityResponse.status, opportunityResponseText);
+        }
+      } else {
+        const opportunity = JSON.parse(opportunityResponseText);
+        console.log('✅ Opportunity created:', opportunity);
+      }
 
       console.log('🎯 Redirecting to results page...');
       // Redirect to results page
