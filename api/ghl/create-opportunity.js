@@ -15,14 +15,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { contactId, title, status, stage, value, source, notes } = req.body;
+    const { contactId, title, status, value, source } = req.body;
 
     // GoHighLevel API configuration
     const GHL_API_KEY = process.env.GHL_API_KEY;
     const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
     const GHL_PIPELINE_ID = process.env.GHL_PIPELINE_ID;
 
-    console.log('Environment variables check (v2):');
+    console.log('=== OPPORTUNITY API v3 ===');
     console.log('GHL_API_KEY:', GHL_API_KEY ? 'Present' : 'Missing');
     console.log('GHL_LOCATION_ID:', GHL_LOCATION_ID || 'Missing');
     console.log('GHL_PIPELINE_ID:', GHL_PIPELINE_ID || 'Missing');
@@ -32,20 +32,18 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    // GHL will automatically assign the opportunity to the first stage of the pipeline
-
-    // Prepare opportunity data for GHL API
+    // Create opportunity data - GHL auto-assigns to first stage of pipeline
     const opportunityData = {
       name: title,
-      status,
+      status: status || 'open',
       contactId,
       monetaryValue: value || 0,
       pipelineId: GHL_PIPELINE_ID,
       locationId: GHL_LOCATION_ID,
-      source
+      source: source || 'API'
     };
 
-    console.log('Creating opportunity with data:', JSON.stringify(opportunityData, null, 2));
+    console.log('Creating opportunity:', JSON.stringify(opportunityData, null, 2));
 
     // Create opportunity in GoHighLevel
     const response = await fetch('https://services.leadconnectorhq.com/opportunities/', {
@@ -59,7 +57,7 @@ export default async function handler(req, res) {
     });
 
     const responseText = await response.text();
-    console.log('GHL Opportunity API Response:', response.status, responseText);
+    console.log('GHL Response:', response.status, responseText);
 
     if (!response.ok) {
       throw new Error(`GHL API error: ${response.status} - ${responseText}`);
