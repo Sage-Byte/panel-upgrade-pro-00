@@ -34,9 +34,13 @@ const Hero = ({ electricalSystem, setElectricalSystem, onStartQuiz, onContinue, 
     // Capture and save ad_id from URL parameters to localStorage
     const urlParams = new URLSearchParams(window.location.search);
     const adIdParam = urlParams.get('ad_id');
+    console.log('🔍 Checking for ad_id parameter:', adIdParam);
+    
     if (adIdParam) {
       localStorage.setItem("adId", adIdParam);
-      console.log('Ad ID saved to localStorage:', adIdParam);
+      console.log('✅ Ad ID saved to localStorage:', adIdParam);
+    } else {
+      console.log('ℹ️ No ad_id parameter found in URL');
     }
   }, []);
 
