@@ -109,14 +109,10 @@ const LeadForm = () => {
 
       console.log('📤 Sending contact data to GHL:', contactData);
 
-      // Check if we're in development mode
-      const isDevelopment = window.location.hostname === 'localhost';
-      const apiBaseUrl = isDevelopment ? 'http://localhost:3001' : '';
-      
-      console.log(`🌐 ${isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION'} MODE - Making real API calls to ${apiBaseUrl || 'Vercel'}`);
+      console.log('🌐 Making API calls to create contact and opportunity...');
       
       // Create contact in GoHighLevel
-      const contactResponse = await fetch(`${apiBaseUrl}/api/ghl/create-contact`, {
+      const contactResponse = await fetch('/api/ghl/create-contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +139,7 @@ const LeadForm = () => {
         notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
       };
 
-      const opportunityResponse = await fetch(`${apiBaseUrl}/api/ghl/create-opportunity`, {
+      const opportunityResponse = await fetch('/api/ghl/create-opportunity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
