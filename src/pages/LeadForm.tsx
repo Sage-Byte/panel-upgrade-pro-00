@@ -1,29 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { QuizAnswers } from "@/types/quiz";
 
 const LeadForm = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    homeType: "",
-    electricalPanel: "",
-    parkingLocation: "",
-    comments: ""
+    postcode: ""
   });
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
   const [evOwnership, setEvOwnership] = useState<string | null>(null);
@@ -83,214 +70,186 @@ const LeadForm = () => {
     <main>
       <SEOHead title="Get Your EV Charger Quote" description="Enter your details to get your personalized EV charger installation quote from Electric Medic." />
       
+      {/* Progress Bar */}
+      <section className="container px-4 py-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600">Step 8 of 8</span>
+            <span className="text-sm text-gray-600">100% Complete</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-green-500 h-2 rounded-full w-full"></div>
+          </div>
+        </div>
+      </section>
+
       {/* Header Section */}
-      <section className="container px-4 py-6">
+      <section className="container px-4 py-8">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-            EV Charger Installation — Get Your Custom Quote
+            Your Personalised EV Charger Estimate is Ready! 🎉
           </h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Just a few details so we can send your personalized EV charger installation quote and schedule your consultation.
+          <p className="text-lg text-gray-600 mb-8">
+            Enter your details to see your custom results and book a free consultation.
           </p>
         </div>
       </section>
 
       {/* Form Section */}
       <section className="container px-4 pb-12">
-        <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-lg">
+        <div className="max-w-lg mx-auto">
+          <form onSubmit={handleSubmit} className="space-y-6">
             
-            {/* Name Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="firstName">First Name *</Label>
-                <Input
-                  id="firstName"
+            {/* Full Name */}
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <input
+                  id="fullName"
                   type="text"
                   required
-                  value={formData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="lastName">Last Name *</Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  required
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  className="mt-1"
+                  value={formData.fullName}
+                  onChange={(e) => handleInputChange('fullName', e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="test"
                 />
               </div>
             </div>
 
-            {/* Contact Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
+            {/* Email Address */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <input
                   id="email"
                   type="email"
                   required
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="mt-1"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="test@gmail.com"
                 />
               </div>
-              <div>
-                <Label htmlFor="phone">Phone Number *</Label>
-                <Input
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <input
                   id="phone"
                   type="tel"
                   required
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className="mt-1"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="938507357"
                 />
               </div>
             </div>
 
-            {/* Address Fields */}
+            {/* Postcode */}
             <div>
-              <Label htmlFor="address">Street Address *</Label>
-              <Input
-                id="address"
-                type="text"
-                required
-                value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                className="mt-1"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="city">City *</Label>
-                <Input
-                  id="city"
+              <label htmlFor="postcode" className="block text-sm font-medium text-gray-700 mb-2">
+                Postcode *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <input
+                  id="postcode"
                   type="text"
                   required
-                  value={formData.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
-                  className="mt-1"
+                  value={formData.postcode}
+                  onChange={(e) => handleInputChange('postcode', e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="8500"
                 />
               </div>
-              <div>
-                <Label htmlFor="state">State *</Label>
-                <Select onValueChange={(value) => handleInputChange('state', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CA">California</SelectItem>
-                    <SelectItem value="TX">Texas</SelectItem>
-                    <SelectItem value="FL">Florida</SelectItem>
-                    <SelectItem value="NY">New York</SelectItem>
-                    <SelectItem value="WA">Washington</SelectItem>
-                    {/* Add more states as needed */}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="zipCode">ZIP Code *</Label>
-                <Input
-                  id="zipCode"
-                  type="text"
+            </div>
+
+            {/* Consent Checkbox */}
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="consent"
+                  name="consent"
+                  type="checkbox"
                   required
-                  value={formData.zipCode}
-                  onChange={(e) => handleInputChange('zipCode', e.target.value)}
-                  className="mt-1"
+                  className="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 rounded"
                 />
               </div>
-            </div>
-
-            {/* Property Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="homeType">Home Type *</Label>
-                <Select onValueChange={(value) => handleInputChange('homeType', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select home type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="single-family">Single Family Home</SelectItem>
-                    <SelectItem value="townhouse">Townhouse</SelectItem>
-                    <SelectItem value="condo">Condominium</SelectItem>
-                    <SelectItem value="apartment">Apartment</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="electricalPanel">Electrical Panel Age</Label>
-                <Select onValueChange={(value) => handleInputChange('electricalPanel', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select panel age" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0-10">0-10 years</SelectItem>
-                    <SelectItem value="10-20">10-20 years</SelectItem>
-                    <SelectItem value="20-30">20-30 years</SelectItem>
-                    <SelectItem value="30+">30+ years</SelectItem>
-                    <SelectItem value="unknown">Not sure</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="ml-3 text-sm">
+                <label htmlFor="consent" className="text-gray-700">
+                  I agree to be contacted about my EV charger estimate and consultation. *
+                </label>
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="parkingLocation">Where do you park your EV?</Label>
-              <Select onValueChange={(value) => handleInputChange('parkingLocation', value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select parking location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="garage">Garage</SelectItem>
-                  <SelectItem value="driveway">Driveway</SelectItem>
-                  <SelectItem value="carport">Carport</SelectItem>
-                  <SelectItem value="street">Street parking</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Comments */}
-            <div>
-              <Label htmlFor="comments">Additional Comments</Label>
-              <Textarea
-                id="comments"
-                value={formData.comments}
-                onChange={(e) => handleInputChange('comments', e.target.value)}
-                className="mt-1"
-                rows={3}
-                placeholder="Any special requirements or questions?"
-              />
+            {/* Privacy Notice */}
+            <div className="flex items-start">
+              <div className="flex items-center h-5 mt-0.5">
+                <svg className="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 text-sm">
+                <p className="text-gray-600">
+                  Your information is secure and will only be used to provide your EV charger estimate and consultation details.
+                </p>
+              </div>
             </div>
 
             {/* Submit Button */}
-            <Button 
-              type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-white py-3 text-lg"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Submitting...
-                </div>
-              ) : (
-                "Get My Custom Quote"
-              )}
-            </Button>
-
-            {/* Quiz Data Display (for debugging) */}
-            {quizAnswers && evOwnership && (
-              <div className="text-sm text-gray-500 mt-4 p-3 bg-gray-50 rounded">
-                <p><strong>EV Ownership:</strong> {evOwnership}</p>
-                <p><strong>Quiz Answers:</strong> {Object.keys(quizAnswers).length} responses captured</p>
-              </div>
-            )}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                    Show My Results
+                  </>
+                )}
+              </button>
+            </div>
 
           </form>
         </div>
