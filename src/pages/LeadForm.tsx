@@ -108,7 +108,7 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Wait for actual form submission, then redirect immediately
+  // Intercept form submission and redirect immediately
   useEffect(() => {
     let formSubmitted = false;
 
@@ -120,88 +120,114 @@ const LeadForm = () => {
       }
     };
 
-    // Monitor for submit button clicks specifically
-    const monitorSubmitClicks = () => {
+    // Override window location changes to catch redirects
+    const originalAssign = window.location.assign;
+    const originalReplace = window.location.replace;
+    const originalHref = window.location.href;
+
+    // Override location methods
+    window.location.assign = function(url: string) {
+      console.log('Location assign intercepted:', url);
+      if (url.includes('/thank-you') || url.includes('thank')) {
+        handleFormSubmission();
+        return;
+      }
+      return originalAssign.call(this, url);
+    };
+
+    window.location.replace = function(url: string) {
+      console.log('Location replace intercepted:', url);
+      if (url.includes('/thank-you') || url.includes('thank')) {
+        handleFormSubmission();
+        return;
+      }
+      return originalReplace.call(this, url);
+    };
+
+    // Monitor for any clicks and check aggressively for submission
+    const monitorClicks = () => {
       const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
       if (iframe) {
         iframe.addEventListener('click', (event) => {
-          console.log('Click detected in iframe - checking if submit...');
+          console.log('Click detected in iframe');
           
-          // Check if this was a submit button click by looking for form submission indicators
-          setTimeout(() => {
+          // Start aggressive checking immediately after click
+          const checkForSubmission = () => {
+            if (formSubmitted) return;
+            
             try {
               const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
               if (iframeDoc) {
-                // Check if thank you message appeared (indicates submission)
                 const bodyText = iframeDoc.body?.innerText || '';
+                console.log('Checking iframe content:', bodyText.substring(0, 100));
+                
                 if (bodyText.includes('Thank you for taking the time to complete this form') ||
-                    bodyText.includes('form has been submitted') ||
-                    bodyText.includes('submission successful')) {
-                  console.log('Form submission detected after click - redirecting');
+                    bodyText.includes('Thank you') ||
+                    bodyText.includes('submitted') ||
+                    bodyText.includes('complete')) {
+                  console.log('Form submission detected - redirecting immediately');
                   handleFormSubmission();
+                  return;
                 }
               }
             } catch (error) {
-              // CORS error - can't access iframe content
-              // Wait longer to see if this was actually a submit click
-              setTimeout(() => {
-                if (!formSubmitted) {
-                  console.log('CORS detected after click, checking for submission...');
-                  // Only redirect if we have strong indicators this was a submit
-                  // Check if URL changed or iframe reloaded
-                  try {
-                    const currentSrc = iframe.src;
-                    if (currentSrc.includes('thank') || currentSrc !== iframe.getAttribute('src')) {
-                      console.log('URL change detected - form submitted');
-                      handleFormSubmission();
-                    }
-                  } catch (e) {
-                    // Fallback: assume submit after longer delay only
-                    setTimeout(() => {
-                      if (!formSubmitted) {
-                        console.log('Fallback: assuming form was submitted');
-                        handleFormSubmission();
-                      }
-                    }, 1500);
-                  }
-                }
-              }, 800);
+              console.log('CORS error, cannot check iframe content');
             }
-          }, 500);
+
+            // Check if we're being redirected
+            if (window.location.pathname === '/thank-you') {
+              console.log('Detected redirect to thank-you page');
+              handleFormSubmission();
+              return;
+            }
+
+            // Continue checking for a few seconds after click
+            setTimeout(checkForSubmission, 100);
+          };
+
+          // Start checking immediately and continue for 3 seconds
+          checkForSubmission();
+          setTimeout(() => {
+            if (!formSubmitted) {
+              console.log('Timeout reached, assuming form was submitted');
+              handleFormSubmission();
+            }
+          }, 3000);
         });
       }
     };
 
-    // Listen for GHL form submission messages
+    // Listen for any navigation events
+    const handlePopState = (event: PopStateEvent) => {
+      if (window.location.pathname === '/thank-you') {
+        console.log('PopState detected navigation to thank-you');
+        handleFormSubmission();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Listen for GHL messages
     const handleMessage = (event: MessageEvent) => {
       if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
-        console.log('GHL form message:', event.data);
-        
-        // Only redirect on actual submission messages, not all messages
-        if (event.data && (
-          event.data.type === 'form_submitted' ||
-          event.data.type === 'submission_complete' ||
-          event.data.action === 'submit' ||
-          (typeof event.data === 'string' && (
-            event.data.includes('submitted') ||
-            event.data.includes('success') ||
-            event.data.includes('complete')
-          ))
-        )) {
-          console.log('Form submission message received - redirecting');
-          handleFormSubmission();
-        }
+        console.log('GHL message received, redirecting immediately');
+        handleFormSubmission();
       }
     };
 
     window.addEventListener('message', handleMessage);
 
-    // Set up submit monitoring after iframe loads
-    setTimeout(monitorSubmitClicks, 2000);
+    // Set up monitoring
+    setTimeout(monitorClicks, 1000);
 
-    // Backup: Check for thank you message but only occasionally
-    const backupCheck = setInterval(() => {
+    // Aggressive backup check
+    const aggressiveCheck = setInterval(() => {
       if (!formSubmitted) {
+        if (window.location.pathname === '/thank-you') {
+          console.log('Aggressive check found thank-you page');
+          handleFormSubmission();
+        }
+        
         const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
         if (iframe) {
           try {
@@ -209,20 +235,24 @@ const LeadForm = () => {
             if (iframeDoc) {
               const bodyText = iframeDoc.body?.innerText || '';
               if (bodyText.includes('Thank you for taking the time to complete this form')) {
-                console.log('Backup check found submission - redirecting');
+                console.log('Aggressive check found thank you message');
                 handleFormSubmission();
               }
             }
           } catch (error) {
-            // CORS error expected
+            // CORS expected
           }
         }
       }
-    }, 2000); // Check every 2 seconds, less aggressive
+    }, 100); // Check every 100ms
 
     return () => {
+      // Restore original methods
+      window.location.assign = originalAssign;
+      window.location.replace = originalReplace;
+      window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('message', handleMessage);
-      clearInterval(backupCheck);
+      clearInterval(aggressiveCheck);
     };
   }, [navigate]);
 
