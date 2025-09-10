@@ -138,7 +138,7 @@ const LeadForm = () => {
         notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
       };
 
-      const opportunityResponse = await fetch('/api/ghl/create-opp-v2', {
+      const opportunityResponse = await fetch('/api/ghl/create-opportunity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -22,17 +22,16 @@ export default async function handler(req, res) {
     const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
     const GHL_PIPELINE_ID = process.env.GHL_PIPELINE_ID;
 
-    console.log('=== OPPORTUNITY API v3 ===');
-    console.log('GHL_API_KEY:', GHL_API_KEY ? 'Present' : 'Missing');
-    console.log('GHL_LOCATION_ID:', GHL_LOCATION_ID || 'Missing');
-    console.log('GHL_PIPELINE_ID:', GHL_PIPELINE_ID || 'Missing');
+    console.log('=== OPPORTUNITY API FRESH v4 ===');
+    console.log('API Key present:', !!GHL_API_KEY);
+    console.log('Location ID:', GHL_LOCATION_ID);
+    console.log('Pipeline ID:', GHL_PIPELINE_ID);
 
     if (!GHL_API_KEY || !GHL_LOCATION_ID || !GHL_PIPELINE_ID) {
-      console.error('Missing GHL credentials');
-      return res.status(500).json({ error: 'Server configuration error' });
+      return res.status(500).json({ error: 'Missing environment variables' });
     }
 
-    // Create opportunity data - GHL auto-assigns to first stage of pipeline
+    // Create opportunity data - EXACT same format as working curl test
     const opportunityData = {
       name: title,
       status: status || 'open',
@@ -40,12 +39,12 @@ export default async function handler(req, res) {
       monetaryValue: value || 0,
       pipelineId: GHL_PIPELINE_ID,
       locationId: GHL_LOCATION_ID,
-      source: source || 'API'
+      source: source || 'EV Charger Funnel'
     };
 
-    console.log('Creating opportunity:', JSON.stringify(opportunityData, null, 2));
+    console.log('Creating opportunity with data:', JSON.stringify(opportunityData, null, 2));
 
-    // Create opportunity in GoHighLevel
+    // Create opportunity in GoHighLevel - EXACT same API call as working curl test
     const response = await fetch('https://services.leadconnectorhq.com/opportunities/', {
       method: 'POST',
       headers: {
@@ -57,10 +56,25 @@ export default async function handler(req, res) {
     });
 
     const responseText = await response.text();
-    console.log('GHL Response:', response.status, responseText);
+    console.log('GHL API Response Status:', response.status);
+    console.log('GHL API Response Body:', responseText);
 
     if (!response.ok) {
-      throw new Error(`GHL API error: ${response.status} - ${responseText}`);
+      // Handle duplicate opportunity error gracefully
+      if (response.status === 400 && responseText.includes('duplicate opportunity')) {
+        console.log('Duplicate opportunity - this is expected behavior');
+        return res.status(200).json({
+          success: true,
+          message: 'Contact already has an opportunity (this is normal)',
+          duplicate: true
+        });
+      }
+      
+      return res.status(500).json({ 
+        error: 'GHL API error',
+        status: response.status,
+        details: responseText
+      });
     }
 
     const opportunity = JSON.parse(responseText);
@@ -68,13 +82,13 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       opportunity: opportunity.opportunity || opportunity,
-      message: 'Opportunity created successfully'
+      message: 'Opportunity created successfully in Paid Ads Pipeline'
     });
 
   } catch (error) {
-    console.error('Error creating opportunity:', error);
+    console.error('Error in opportunity API:', error);
     return res.status(500).json({ 
-      error: 'Failed to create opportunity',
+      error: 'API error',
       details: error.message 
     });
   }
