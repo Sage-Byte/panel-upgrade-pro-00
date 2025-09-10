@@ -111,78 +111,53 @@ const LeadForm = () => {
 
       // Check if we're in development mode
       const isDevelopment = window.location.hostname === 'localhost';
+      const apiBaseUrl = isDevelopment ? 'http://localhost:3001' : '';
       
-      if (isDevelopment) {
-        // Mock API calls for local development
-        console.log('🔧 DEVELOPMENT MODE - Simulating API calls');
-        
-        // Simulate contact creation
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const mockContact = { id: 'mock-contact-123', ...contactData };
-        console.log('✅ Mock Contact created:', mockContact);
+      console.log(`🌐 ${isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION'} MODE - Making real API calls to ${apiBaseUrl || 'Vercel'}`);
+      
+      // Create contact in GoHighLevel
+      const contactResponse = await fetch(`${apiBaseUrl}/api/ghl/create-contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactData)
+      });
 
-        // Simulate opportunity creation
-        const opportunityData = {
-          contactId: mockContact.id,
-          title: `EV Charger Installation - ${formData.fullName}`,
-          status: 'open',
-          stage: 'Lead In',
-          value: 0,
-          source: 'EV Charger Funnel',
-          notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
-        };
-
-        console.log('📤 Mock opportunity data:', opportunityData);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const mockOpportunity = { id: 'mock-opportunity-456', ...opportunityData };
-        console.log('✅ Mock Opportunity created:', mockOpportunity);
-        
-      } else {
-        // Production API calls
-        console.log('🌐 PRODUCTION MODE - Making real API calls');
-        
-        // Create contact in GoHighLevel
-        const contactResponse = await fetch('/api/ghl/create-contact', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(contactData)
-        });
-
-        if (!contactResponse.ok) {
-          throw new Error('Failed to create contact');
-        }
-
-        const contact = await contactResponse.json();
-        console.log('✅ Contact created:', contact);
-
-        // Create opportunity in "Lead In" stage
-        const opportunityData = {
-          contactId: contact.contact?.id || contact.id,
-          title: `EV Charger Installation - ${formData.fullName}`,
-          status: 'open',
-          stage: 'Lead In',
-          value: 0,
-          source: 'EV Charger Funnel',
-          notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
-        };
-
-        const opportunityResponse = await fetch('/api/ghl/create-opportunity', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(opportunityData)
-        });
-
-        if (!opportunityResponse.ok) {
-          throw new Error('Failed to create opportunity');
-        }
-
-        const opportunity = await opportunityResponse.json();
-        console.log('✅ Opportunity created:', opportunity);
+      if (!contactResponse.ok) {
+        const errorText = await contactResponse.text();
+        throw new Error(`Failed to create contact: ${contactResponse.status} - ${errorText}`);
       }
+
+      const contact = await contactResponse.json();
+      console.log('✅ Contact created:', contact);
+
+      // Create opportunity in "Lead In" stage
+      const opportunityData = {
+        contactId: contact.contact?.id || contact.id,
+        title: `EV Charger Installation - ${formData.fullName}`,
+        status: 'open',
+        stage: 'Lead In',
+        value: 0,
+        source: 'EV Charger Funnel',
+        notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
+      };
+
+      const opportunityResponse = await fetch(`${apiBaseUrl}/api/ghl/create-opportunity`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(opportunityData)
+      });
+
+      if (!opportunityResponse.ok) {
+        const errorText = await opportunityResponse.text();
+        throw new Error(`Failed to create opportunity: ${opportunityResponse.status} - ${errorText}`);
+      }
+
+      const opportunity = await opportunityResponse.json();
+      console.log('✅ Opportunity created:', opportunity);
 
       console.log('🎯 Redirecting to results page...');
       // Redirect to results page
