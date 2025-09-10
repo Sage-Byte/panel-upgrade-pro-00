@@ -108,7 +108,7 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Intercept form submission and redirect immediately
+  // Simple redirect after form submission
   useEffect(() => {
     let formSubmitted = false;
 
@@ -120,139 +120,34 @@ const LeadForm = () => {
       }
     };
 
-    // Override window location changes to catch redirects
-    const originalAssign = window.location.assign;
-    const originalReplace = window.location.replace;
-    const originalHref = window.location.href;
-
-    // Override location methods
-    window.location.assign = function(url: string) {
-      console.log('Location assign intercepted:', url);
-      if (url.includes('/thank-you') || url.includes('thank')) {
-        handleFormSubmission();
-        return;
-      }
-      return originalAssign.call(this, url);
-    };
-
-    window.location.replace = function(url: string) {
-      console.log('Location replace intercepted:', url);
-      if (url.includes('/thank-you') || url.includes('thank')) {
-        handleFormSubmission();
-        return;
-      }
-      return originalReplace.call(this, url);
-    };
-
-    // Monitor for any clicks and check aggressively for submission
-    const monitorClicks = () => {
+    // Only check for thank you message after form loads
+    const checkForSubmission = () => {
+      if (formSubmitted) return;
+      
       const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
       if (iframe) {
-        iframe.addEventListener('click', (event) => {
-          console.log('Click detected in iframe');
-          
-          // Start aggressive checking immediately after click
-          const checkForSubmission = () => {
-            if (formSubmitted) return;
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (iframeDoc) {
+            const bodyText = iframeDoc.body?.innerText || '';
             
-            try {
-              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-              if (iframeDoc) {
-                const bodyText = iframeDoc.body?.innerText || '';
-                console.log('Checking iframe content:', bodyText.substring(0, 100));
-                
-                if (bodyText.includes('Thank you for taking the time to complete this form') ||
-                    bodyText.includes('Thank you') ||
-                    bodyText.includes('submitted') ||
-                    bodyText.includes('complete')) {
-                  console.log('Form submission detected - redirecting immediately');
-                  handleFormSubmission();
-                  return;
-                }
-              }
-            } catch (error) {
-              console.log('CORS error, cannot check iframe content');
-            }
-
-            // Check if we're being redirected
-            if (window.location.pathname === '/thank-you') {
-              console.log('Detected redirect to thank-you page');
-              handleFormSubmission();
-              return;
-            }
-
-            // Continue checking for a few seconds after click
-            setTimeout(checkForSubmission, 100);
-          };
-
-          // Start checking immediately and continue for 3 seconds
-          checkForSubmission();
-          setTimeout(() => {
-            if (!formSubmitted) {
-              console.log('Timeout reached, assuming form was submitted');
+            // Only redirect if we see the specific thank you message
+            if (bodyText.includes('Thank you for taking the time to complete this form')) {
+              console.log('Thank you message detected - redirecting');
               handleFormSubmission();
             }
-          }, 3000);
-        });
-      }
-    };
-
-    // Listen for any navigation events
-    const handlePopState = (event: PopStateEvent) => {
-      if (window.location.pathname === '/thank-you') {
-        console.log('PopState detected navigation to thank-you');
-        handleFormSubmission();
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-
-    // Listen for GHL messages
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
-        console.log('GHL message received, redirecting immediately');
-        handleFormSubmission();
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-
-    // Set up monitoring
-    setTimeout(monitorClicks, 1000);
-
-    // Aggressive backup check
-    const aggressiveCheck = setInterval(() => {
-      if (!formSubmitted) {
-        if (window.location.pathname === '/thank-you') {
-          console.log('Aggressive check found thank-you page');
-          handleFormSubmission();
-        }
-        
-        const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
-        if (iframe) {
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            if (iframeDoc) {
-              const bodyText = iframeDoc.body?.innerText || '';
-              if (bodyText.includes('Thank you for taking the time to complete this form')) {
-                console.log('Aggressive check found thank you message');
-                handleFormSubmission();
-              }
-            }
-          } catch (error) {
-            // CORS expected
           }
+        } catch (error) {
+          // CORS error expected
         }
       }
-    }, 100); // Check every 100ms
+    };
+
+    // Check for thank you message every 1 second (not aggressive)
+    const checkInterval = setInterval(checkForSubmission, 1000);
 
     return () => {
-      // Restore original methods
-      window.location.assign = originalAssign;
-      window.location.replace = originalReplace;
-      window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('message', handleMessage);
-      clearInterval(aggressiveCheck);
+      clearInterval(checkInterval);
     };
   }, [navigate]);
 
