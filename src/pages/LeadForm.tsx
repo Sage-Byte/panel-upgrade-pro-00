@@ -44,24 +44,83 @@ const LeadForm = () => {
     setIsLoading(true);
     
     try {
-      // Prepare data for submission
-      const submissionData = {
-        ...formData,
-        quizAnswers,
-        evOwnership,
-        timestamp: new Date().toISOString()
+      // Prepare contact data
+      const contactData = {
+        firstName: formData.fullName.split(' ')[0] || formData.fullName,
+        lastName: formData.fullName.split(' ').slice(1).join(' ') || '',
+        email: formData.email,
+        phone: formData.phone,
+        customFields: {
+          // Form data
+          postcode: formData.postcode,
+          ev_ownership: evOwnership || '',
+          
+          // Quiz answers as custom fields
+          electrical_system: quizAnswers?.electricalSystem || '',
+          charging_frequency: quizAnswers?.chargingFrequency || '',
+          charger_type: quizAnswers?.chargerType || '',
+          property_type: quizAnswers?.propertyType || '',
+          garage_type: quizAnswers?.garageType || '',
+          current_panel: quizAnswers?.currentPanel || '',
+          timeline: quizAnswers?.timeline || '',
+          quiz_zip: quizAnswers?.zip || '',
+          
+          // Additional tracking
+          lead_source: 'EV Charger Funnel',
+          form_submission_date: new Date().toISOString()
+        }
       };
-      
-      console.log('Form submitted:', submissionData);
-      
-      // Here you can add GHL API call or webhook
-      // For now, we'll simulate the submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect immediately to results - THIS IS WHAT YOU WANTED!
+
+      // Create contact in GoHighLevel
+      const contactResponse = await fetch('/api/ghl/create-contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactData)
+      });
+
+      if (!contactResponse.ok) {
+        throw new Error('Failed to create contact');
+      }
+
+      const contact = await contactResponse.json();
+      console.log('Contact created:', contact);
+
+      // Create opportunity in "Lead In" stage
+      const opportunityData = {
+        contactId: contact.id,
+        title: `EV Charger Installation - ${formData.fullName}`,
+        status: 'open',
+        stage: 'Lead In', // Your pipeline stage
+        value: 0, // You can set an estimated value
+        source: 'EV Charger Funnel',
+        notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}`
+      };
+
+      const opportunityResponse = await fetch('/api/ghl/create-opportunity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(opportunityData)
+      });
+
+      if (!opportunityResponse.ok) {
+        throw new Error('Failed to create opportunity');
+      }
+
+      const opportunity = await opportunityResponse.json();
+      console.log('Opportunity created:', opportunity);
+
+      // Redirect to results page
       navigate('/results');
+      
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Submission error:', error);
+      // Still redirect to results even if API fails
+      navigate('/results');
+    } finally {
       setIsLoading(false);
     }
   };
