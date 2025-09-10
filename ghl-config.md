@@ -28,6 +28,7 @@ GHL_PIPELINE_ID=your_ghl_pipeline_id_here
 - Go to Settings > Pipelines
 - Click on your pipeline and check the URL for the pipeline ID
 - Or get it via API: `GET /opportunities/pipelines`
+- **Current Pipeline**: "Paid Ads Pipeline" (ID: `uawoqNEqdaeDXFMuyFTt`)
 
 ## Custom Fields to Create in GHL:
 
@@ -49,4 +50,4 @@ Make sure these custom fields exist in your GoHighLevel location:
 
 ## Pipeline Stage:
 
-Ensure you have a stage called "Lead In" in your pipeline, or update the stage name in the API code.
+Using "Paid Ads Pipeline" → "New Lead 💡" stage for new opportunities from the EV Charger funnel.

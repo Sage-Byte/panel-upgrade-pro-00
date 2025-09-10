@@ -128,12 +128,11 @@ const LeadForm = () => {
       const contact = await contactResponse.json();
       console.log('✅ Contact created:', contact);
 
-      // Create opportunity in "Lead In" stage
+      // Create opportunity in "Paid Ads Pipeline" → "New Lead 💡" stage
       const opportunityData = {
         contactId: contact.contact?.id || contact.id,
         title: `EV Charger Installation - ${formData.fullName}`,
         status: 'open',
-        stage: 'Lead In',
         value: 0,
         source: 'EV Charger Funnel',
         notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
