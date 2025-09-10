@@ -30,6 +30,14 @@ const Hero = ({ electricalSystem, setElectricalSystem, onStartQuiz, onContinue, 
     if (sectionRef.current) {
       sectionRef.current.setAttribute("tabindex", "-1");
     }
+
+    // Capture and save ad_id from URL parameters to localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const adIdParam = urlParams.get('ad_id');
+    if (adIdParam) {
+      localStorage.setItem("adId", adIdParam);
+      console.log('Ad ID saved to localStorage:', adIdParam);
+    }
   }, []);
 
   const progress = Math.round((step / totalSteps) * 100);

@@ -43,6 +43,7 @@ Make sure these custom fields exist in your GoHighLevel location:
 - `current_panel` (Text)
 - `timeline` (Text)
 - `quiz_zip` (Text)
+- `ad_id` (Text) - Meta Ad ID for tracking
 - `lead_source` (Text)
 - `form_submission_date` (DateTime)
 

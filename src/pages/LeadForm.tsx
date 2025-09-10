@@ -14,8 +14,9 @@ const LeadForm = () => {
   });
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
   const [evOwnership, setEvOwnership] = useState<string | null>(null);
+  const [adId, setAdId] = useState<string | null>(null);
 
-  // Retrieve quiz answers and EV ownership from localStorage
+  // Retrieve quiz answers, EV ownership from localStorage, and ad_id from URL
   useEffect(() => {
     try {
       const answers = localStorage.getItem("evChargerQuizAnswers");
@@ -26,6 +27,19 @@ const LeadForm = () => {
       const evOwnershipData = localStorage.getItem("evOwnership");
       if (evOwnershipData) {
         setEvOwnership(evOwnershipData);
+      }
+
+      // Capture ad_id from URL parameters or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const adIdParam = urlParams.get('ad_id');
+      const savedAdId = localStorage.getItem("adId");
+      
+      if (adIdParam) {
+        setAdId(adIdParam);
+        console.log('Ad ID captured from URL:', adIdParam);
+      } else if (savedAdId) {
+        setAdId(savedAdId);
+        console.log('Ad ID retrieved from localStorage:', savedAdId);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -65,6 +79,9 @@ const LeadForm = () => {
           timeline: quizAnswers?.timeline || '',
           quiz_zip: quizAnswers?.zip || '',
           
+          // Meta Ad tracking
+          ad_id: adId || '',
+          
           // Additional tracking
           lead_source: 'EV Charger Funnel',
           form_submission_date: new Date().toISOString()
@@ -95,7 +112,7 @@ const LeadForm = () => {
         stage: 'Lead In', // Your pipeline stage
         value: 0, // You can set an estimated value
         source: 'EV Charger Funnel',
-        notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}`
+        notes: `Lead from EV Charger funnel. EV Ownership: ${evOwnership}. Property: ${quizAnswers?.propertyType || 'Not specified'}${adId ? `. Ad ID: ${adId}` : ''}`
       };
 
       const opportunityResponse = await fetch('/api/ghl/create-opportunity', {
