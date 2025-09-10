@@ -108,65 +108,79 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Add form submission detection and redirect
+  // Add immediate form submission detection and redirect
   useEffect(() => {
     const detectFormSubmission = () => {
-      // Listen for messages from the iframe
+      // Listen for any form submission events in the iframe
       const handleMessage = (event: MessageEvent) => {
-        // Check if message is from GHL form
         if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
           console.log('GHL form message:', event.data);
           
-          // Check for form submission success
+          // Redirect immediately on any form-related message
           if (event.data && (
             event.data.type === 'form_submitted' ||
             event.data.includes('submitted') ||
             event.data.includes('success') ||
-            event.data.includes('thank')
+            event.data.includes('thank') ||
+            event.data.includes('form')
           )) {
-            console.log('Form submitted successfully, redirecting to results...');
-            // Redirect to results page after a short delay
-            setTimeout(() => {
-              navigate('/results');
-            }, 1500);
+            console.log('Form activity detected, redirecting immediately...');
+            navigate('/results');
           }
         }
       };
 
-      // Add event listener for messages
       window.addEventListener('message', handleMessage);
 
-      // Also detect if the iframe content changes to show thank you message
-      const checkForThankYouMessage = () => {
+      // Monitor for form submission by detecting submit button clicks
+      const monitorFormSubmission = () => {
         const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
         if (iframe) {
-          try {
-            // This might not work due to CORS, but worth trying
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            if (iframeDoc) {
-              const bodyText = iframeDoc.body?.innerText || '';
-              if (bodyText.includes('Thank you for taking the time to complete this form') || 
-                  bodyText.includes('thank you') || 
-                  bodyText.includes('submitted')) {
-                console.log('Thank you message detected, redirecting...');
+          // Add click listener to the entire iframe area
+          iframe.addEventListener('click', () => {
+            console.log('Iframe clicked, checking for form submission...');
+            
+            // Wait a moment then check if form was submitted
+            setTimeout(() => {
+              try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (iframeDoc) {
+                  const submitButtons = iframeDoc.querySelectorAll('button[type="submit"], input[type="submit"], .submit-button, [class*="submit"]');
+                  
+                  if (submitButtons.length > 0) {
+                    // Monitor submit button clicks
+                    submitButtons.forEach(button => {
+                      button.addEventListener('click', () => {
+                        console.log('Submit button clicked, redirecting immediately...');
+                        // Redirect immediately when submit is clicked
+                        setTimeout(() => {
+                          navigate('/results');
+                        }, 500);
+                      });
+                    });
+                  }
+                }
+              } catch (error) {
+                // CORS error expected, use fallback approach
+                console.log('Using fallback submit detection...');
+                
+                // If we can't access iframe content, redirect after a short delay
+                // assuming the click might have been on a submit button
                 setTimeout(() => {
+                  console.log('Fallback redirect triggered...');
                   navigate('/results');
-                }, 1500);
+                }, 2000);
               }
-            }
-          } catch (error) {
-            // CORS error expected, ignore
-          }
+            }, 100);
+          });
         }
       };
 
-      // Check periodically for thank you message
-      const interval = setInterval(checkForThankYouMessage, 1000);
+      // Set up form monitoring after iframe loads
+      setTimeout(monitorFormSubmission, 1000);
 
-      // Cleanup
       return () => {
         window.removeEventListener('message', handleMessage);
-        clearInterval(interval);
       };
     };
 
@@ -174,43 +188,39 @@ const LeadForm = () => {
     return cleanup;
   }, [navigate]);
 
-  // Alternative approach: Add a manual redirect button after form submission
+  // Backup redirect approach - immediate button and shorter auto-redirect
   useEffect(() => {
-    const addRedirectButton = () => {
-      // Wait for the iframe to load and then add a listener for clicks
+    const addQuickRedirect = () => {
       setTimeout(() => {
-        const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
-        if (iframe) {
-          // Add a button that appears after form submission
-          const redirectButton = document.createElement('button');
-          redirectButton.innerHTML = 'Continue to Your Results →';
-          redirectButton.className = 'fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 font-semibold hover:bg-primary/90 transition-all duration-300';
-          redirectButton.style.display = 'none';
-          redirectButton.onclick = () => navigate('/results');
-          
-          document.body.appendChild(redirectButton);
-          
-          // Show button after 3 seconds (assuming form might be submitted by then)
-          setTimeout(() => {
-            redirectButton.style.display = 'block';
-          }, 3000);
-          
-          // Auto-redirect after 8 seconds if no manual click
-          setTimeout(() => {
-            console.log('Auto-redirecting to results page...');
-            navigate('/results');
-          }, 8000);
-          
-          return () => {
-            if (document.body.contains(redirectButton)) {
-              document.body.removeChild(redirectButton);
-            }
-          };
-        }
-      }, 2000);
+        // Add immediate redirect button
+        const redirectButton = document.createElement('button');
+        redirectButton.innerHTML = 'Continue to Your Results →';
+        redirectButton.className = 'fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 font-semibold hover:bg-primary/90 transition-all duration-300';
+        redirectButton.style.display = 'none';
+        redirectButton.onclick = () => navigate('/results');
+        
+        document.body.appendChild(redirectButton);
+        
+        // Show button after just 1 second
+        setTimeout(() => {
+          redirectButton.style.display = 'block';
+        }, 1000);
+        
+        // Auto-redirect after 3 seconds if no manual click
+        setTimeout(() => {
+          console.log('Quick auto-redirect to results page...');
+          navigate('/results');
+        }, 3000);
+        
+        return () => {
+          if (document.body.contains(redirectButton)) {
+            document.body.removeChild(redirectButton);
+          }
+        };
+      }, 1000);
     };
 
-    addRedirectButton();
+    addQuickRedirect();
   }, [navigate]);
 
   return (
