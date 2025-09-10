@@ -108,71 +108,105 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Intercept any navigation to /thank-you and redirect to /results instead
+  // Aggressive redirect to prevent showing any thank you message
   useEffect(() => {
-    const originalPushState = window.history.pushState;
-    const originalReplaceState = window.history.replaceState;
+    let redirected = false;
 
-    // Override history methods to catch GHL redirects
-    window.history.pushState = function(state: any, title: string, url?: string | URL | null) {
-      if (url && url.toString().includes('/thank-you')) {
-        console.log('Intercepting redirect to /thank-you, going to /results instead');
-        navigate('/results');
-        return;
-      }
-      return originalPushState.call(this, state, title, url);
-    };
-
-    window.history.replaceState = function(state: any, title: string, url?: string | URL | null) {
-      if (url && url.toString().includes('/thank-you')) {
-        console.log('Intercepting redirect to /thank-you, going to /results instead');
-        navigate('/results');
-        return;
-      }
-      return originalReplaceState.call(this, state, title, url);
-    };
-
-    // Also listen for popstate events
-    const handlePopState = (event: PopStateEvent) => {
-      if (window.location.pathname === '/thank-you') {
-        console.log('Detected navigation to /thank-you, redirecting to /results');
+    const forceRedirect = () => {
+      if (!redirected) {
+        redirected = true;
+        console.log('Force redirecting to /results');
         navigate('/results');
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
+    // Monitor iframe for ANY content changes that might indicate submission
+    const monitorIframe = () => {
+      const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
+      if (iframe) {
+        // Listen for ANY iframe activity
+        iframe.addEventListener('load', () => {
+          console.log('Iframe loaded - checking for submission');
+          setTimeout(() => {
+            try {
+              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+              if (iframeDoc) {
+                const bodyText = iframeDoc.body?.innerText || '';
+                // If we see ANY thank you message, redirect immediately
+                if (bodyText.includes('Thank you') || bodyText.includes('thank you') || 
+                    bodyText.includes('submitted') || bodyText.includes('complete')) {
+                  console.log('Thank you message detected - redirecting immediately');
+                  forceRedirect();
+                }
+              }
+            } catch (error) {
+              // CORS - can't check content, but iframe reload might mean submission
+              console.log('Iframe reloaded (CORS) - assuming submission, redirecting');
+              forceRedirect();
+            }
+          }, 100);
+        });
 
-    // Listen for GHL form submission messages
+        // Also monitor for clicks on submit buttons
+        iframe.addEventListener('click', (event) => {
+          console.log('Click detected in iframe');
+          // Wait briefly to see if this triggers a submission
+          setTimeout(() => {
+            try {
+              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+              if (iframeDoc) {
+                const bodyText = iframeDoc.body?.innerText || '';
+                if (bodyText.includes('Thank you') || bodyText.includes('thank you')) {
+                  console.log('Thank you message after click - redirecting');
+                  forceRedirect();
+                }
+              }
+            } catch (error) {
+              // CORS error - assume submission happened
+              console.log('Click with CORS error - assuming submission');
+              setTimeout(forceRedirect, 500);
+            }
+          }, 200);
+        });
+      }
+    };
+
+    // Listen for any GHL messages
     const handleMessage = (event: MessageEvent) => {
       if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
-        console.log('GHL form message:', event.data);
-        
-        // Only redirect on actual submission messages
-        if (event.data && (
-          event.data.type === 'form_submitted' ||
-          event.data.type === 'submission_complete' ||
-          event.data.action === 'submit' ||
-          (typeof event.data === 'string' && (
-            event.data.includes('submitted') ||
-            event.data.includes('success') ||
-            event.data.includes('complete') ||
-            event.data.includes('redirect')
-          ))
-        )) {
-          console.log('Form submitted - redirecting to /results');
-          navigate('/results');
-        }
+        console.log('GHL message received - redirecting immediately');
+        forceRedirect();
       }
     };
 
     window.addEventListener('message', handleMessage);
 
+    // Set up monitoring after iframe loads
+    setTimeout(monitorIframe, 1000);
+
+    // Also check every 200ms for thank you message
+    const checkInterval = setInterval(() => {
+      const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
+      if (iframe && !redirected) {
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (iframeDoc) {
+            const bodyText = iframeDoc.body?.innerText || '';
+            if (bodyText.includes('Thank you') || bodyText.includes('thank you') || 
+                bodyText.includes('submitted') || bodyText.includes('complete')) {
+              console.log('Periodic check found thank you message - redirecting');
+              forceRedirect();
+            }
+          }
+        } catch (error) {
+          // CORS error expected
+        }
+      }
+    }, 200);
+
     return () => {
-      // Restore original methods
-      window.history.pushState = originalPushState;
-      window.history.replaceState = originalReplaceState;
-      window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('message', handleMessage);
+      clearInterval(checkInterval);
     };
   }, [navigate]);
 
