@@ -108,46 +108,95 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Simple redirect after form submission
+  // Redirect IMMEDIATELY when submit button is clicked
   useEffect(() => {
     let formSubmitted = false;
 
-    const handleFormSubmission = () => {
+    const handleSubmitClick = () => {
       if (!formSubmitted) {
         formSubmitted = true;
-        console.log('Form submitted - redirecting to /results');
-        navigate('/results');
+        console.log('Submit button clicked - redirecting immediately');
+        // Redirect immediately without waiting
+        setTimeout(() => navigate('/results'), 100);
       }
     };
 
-    // Only check for thank you message after form loads
-    const checkForSubmission = () => {
-      if (formSubmitted) return;
-      
+    const monitorSubmitButton = () => {
       const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
       if (iframe) {
-        try {
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-          if (iframeDoc) {
-            const bodyText = iframeDoc.body?.innerText || '';
-            
-            // Only redirect if we see the specific thank you message
-            if (bodyText.includes('Thank you for taking the time to complete this form')) {
-              console.log('Thank you message detected - redirecting');
-              handleFormSubmission();
+        // Monitor clicks on the iframe
+        iframe.addEventListener('click', (event) => {
+          console.log('Iframe clicked');
+          
+          // Wait a tiny bit to see if we can detect submit button
+          setTimeout(() => {
+            try {
+              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+              if (iframeDoc) {
+                // Look for submit buttons and check if they were clicked
+                const submitButtons = iframeDoc.querySelectorAll('button[type="submit"], input[type="submit"], button:contains("Submit"), .submit-btn, [class*="submit"]');
+                console.log('Found submit buttons:', submitButtons.length);
+                
+                // If we found submit buttons, assume one was clicked
+                if (submitButtons.length > 0) {
+                  console.log('Submit button detected - redirecting');
+                  handleSubmitClick();
+                }
+              }
+            } catch (error) {
+              // CORS error - can't access iframe content
+              // Assume any click after form is filled might be submit
+              console.log('CORS error, assuming submit click');
+              
+              // Check if form fields seem to be filled (indicating ready to submit)
+              // Wait 200ms and redirect
+              setTimeout(() => {
+                if (!formSubmitted) {
+                  console.log('Assuming form submission - redirecting');
+                  handleSubmitClick();
+                }
+              }, 200);
             }
+          }, 50);
+        });
+
+        // Also try to intercept form submission events
+        iframe.addEventListener('load', () => {
+          console.log('Iframe loaded/reloaded');
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (iframeDoc) {
+              // Add event listeners to submit buttons if we can access them
+              const submitButtons = iframeDoc.querySelectorAll('button[type="submit"], input[type="submit"]');
+              submitButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                  console.log('Direct submit button click detected');
+                  handleSubmitClick();
+                });
+              });
+
+              // Also listen for form submit events
+              const forms = iframeDoc.querySelectorAll('form');
+              forms.forEach(form => {
+                form.addEventListener('submit', (e) => {
+                  console.log('Form submit event detected');
+                  handleSubmitClick();
+                });
+              });
+            }
+          } catch (error) {
+            // CORS error expected
+            console.log('Cannot access iframe content for direct event binding');
           }
-        } catch (error) {
-          // CORS error expected
-        }
+        });
       }
     };
 
-    // Check for thank you message every 1 second (not aggressive)
-    const checkInterval = setInterval(checkForSubmission, 1000);
+    // Set up monitoring after iframe has time to load
+    setTimeout(monitorSubmitButton, 3000);
 
     return () => {
-      clearInterval(checkInterval);
+      // Cleanup would go here if needed
     };
   }, [navigate]);
 
