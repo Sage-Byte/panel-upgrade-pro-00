@@ -70,18 +70,6 @@ const LeadForm = () => {
     <main>
       <SEOHead title="Get Your EV Charger Quote" description="Enter your details to get your personalized EV charger installation quote from Electric Medic." />
       
-      {/* Progress Bar */}
-      <section className="container px-4 py-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Step 6 of 6</span>
-            <span className="text-sm text-gray-600">100% Complete</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-purple-600 h-2 rounded-full w-full"></div>
-          </div>
-        </div>
-      </section>
 
       {/* Header Section */}
       <section className="container px-4 py-8">
