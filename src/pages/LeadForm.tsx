@@ -171,7 +171,7 @@ const LeadForm = () => {
         console.log('✅ Opportunity created:', opportunity);
       }
 
-      console.log('🎯 Redirecting to results page...');
+      console.log('🎯 Redirecting to results page... (Deployment: ' + new Date().toISOString() + ')');
       // Redirect to results page
       navigate('/results');
       
