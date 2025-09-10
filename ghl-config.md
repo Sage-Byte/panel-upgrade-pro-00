@@ -51,3 +51,5 @@ Make sure these custom fields exist in your GoHighLevel location:
 ## Pipeline Stage:
 
 Using "Paid Ads Pipeline" → "New Lead 💡" stage for new opportunities from the EV Charger funnel.
+
+Environment variable `GHL_PIPELINE_ID` should be set to: `uawoqNEqdaeDXFMuyFTt`
