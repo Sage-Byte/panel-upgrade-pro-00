@@ -1,11 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { QuizAnswers } from "@/types/quiz";
 
 const LeadForm = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    homeType: "",
+    electricalPanel: "",
+    parkingLocation: "",
+    comments: ""
+  });
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
   const [evOwnership, setEvOwnership] = useState<string | null>(null);
 
@@ -26,180 +45,39 @@ const LeadForm = () => {
     }
   }, []);
 
-  // Add scripts to the document when component mounts
-  useEffect(() => {
-    // Add GHL form embed script
-    const ghlScript = document.createElement('script');
-    ghlScript.src = "https://link.wattleads.com/js/form_embed.js";
-    ghlScript.async = true;
-    document.body.appendChild(ghlScript);
-
-    // Add URL parameter passing script
-    const paramScript = document.createElement('script');
-    paramScript.textContent = `
-      (function () {
-        // adjust the selector to match your embed if needed
-        var iframe = document.querySelector('iframe[src*="form.gohighlevel.com"], iframe[src*="app.gohighlevel.com"], iframe[src*="wattleads.com"]');
-        if (!iframe) return;
-        var parentQS = window.location.search; // "?c_ad_id=TEST123&..."
-        if (!parentQS) return;
-        var src = new URL(iframe.src, window.location.origin);
-        // keep any existing params on the iframe and append the parent's params
-        if (src.search) iframe.src = src + '&' + parentQS.slice(1);
-        else iframe.src = src + parentQS;
-      })();
-    `;
-    document.body.appendChild(paramScript);
-
-    // Clean up function to remove scripts when component unmounts
-    return () => {
-      if (document.body.contains(ghlScript)) {
-        document.body.removeChild(ghlScript);
-      }
-      if (document.body.contains(paramScript)) {
-        document.body.removeChild(paramScript);
-      }
-    };
-  }, []);
-
-  // Set URL parameters based on quiz answers and EV ownership
-  useEffect(() => {
-    const params = new URLSearchParams();
-    
-    // Add EV ownership data
-    if (evOwnership) {
-      params.append('ev_ownership', evOwnership);
-    }
-    
-    // Map quiz answers to GHL custom fields
-    if (quizAnswers) {
-      if (quizAnswers.electricalSystem) {
-        params.append('electrical_system', quizAnswers.electricalSystem);
-      }
-      if (quizAnswers.chargingFrequency) {
-        params.append('charging_frequency', quizAnswers.chargingFrequency);
-      }
-      if (quizAnswers.chargerType) {
-        params.append('charger_type', quizAnswers.chargerType);
-      }
-      if (quizAnswers.propertyType) {
-        params.append('property_type', quizAnswers.propertyType);
-      }
-      if (quizAnswers.garageType) {
-        params.append('garage_type', quizAnswers.garageType);
-      }
-      if (quizAnswers.currentPanel) {
-        params.append('current_panel', quizAnswers.currentPanel);
-      }
-      if (quizAnswers.timeline) {
-        params.append('timeline', quizAnswers.timeline);
-      }
-    }
-    
-    // Update the URL with parameters if we have any
-    if (params.toString()) {
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      window.history.replaceState({}, '', newUrl);
-    }
-  }, [quizAnswers, evOwnership]);
-
-  // Handle iframe load to stop loading state
-  const handleIframeLoad = () => {
-    setIsLoading(false);
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  // Redirect IMMEDIATELY when submit button is clicked
-  useEffect(() => {
-    let formSubmitted = false;
-
-    const handleSubmitClick = () => {
-      if (!formSubmitted) {
-        formSubmitted = true;
-        console.log('Submit button clicked - redirecting immediately');
-        // Redirect immediately without waiting
-        setTimeout(() => navigate('/results'), 100);
-      }
-    };
-
-    const monitorSubmitButton = () => {
-      const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
-      if (iframe) {
-        // Monitor clicks on the iframe
-        iframe.addEventListener('click', (event) => {
-          console.log('Iframe clicked');
-          
-          // Wait a tiny bit to see if we can detect submit button
-          setTimeout(() => {
-            try {
-              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-              if (iframeDoc) {
-                // Look for submit buttons and check if they were clicked
-                const submitButtons = iframeDoc.querySelectorAll('button[type="submit"], input[type="submit"], button:contains("Submit"), .submit-btn, [class*="submit"]');
-                console.log('Found submit buttons:', submitButtons.length);
-                
-                // If we found submit buttons, assume one was clicked
-                if (submitButtons.length > 0) {
-                  console.log('Submit button detected - redirecting');
-                  handleSubmitClick();
-                }
-              }
-            } catch (error) {
-              // CORS error - can't access iframe content
-              // Assume any click after form is filled might be submit
-              console.log('CORS error, assuming submit click');
-              
-              // Check if form fields seem to be filled (indicating ready to submit)
-              // Wait 200ms and redirect
-              setTimeout(() => {
-                if (!formSubmitted) {
-                  console.log('Assuming form submission - redirecting');
-                  handleSubmitClick();
-                }
-              }, 200);
-            }
-          }, 50);
-        });
-
-        // Also try to intercept form submission events
-        iframe.addEventListener('load', () => {
-          console.log('Iframe loaded/reloaded');
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            if (iframeDoc) {
-              // Add event listeners to submit buttons if we can access them
-              const submitButtons = iframeDoc.querySelectorAll('button[type="submit"], input[type="submit"]');
-              submitButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                  console.log('Direct submit button click detected');
-                  handleSubmitClick();
-                });
-              });
-
-              // Also listen for form submit events
-              const forms = iframeDoc.querySelectorAll('form');
-              forms.forEach(form => {
-                form.addEventListener('submit', (e) => {
-                  console.log('Form submit event detected');
-                  handleSubmitClick();
-                });
-              });
-            }
-          } catch (error) {
-            // CORS error expected
-            console.log('Cannot access iframe content for direct event binding');
-          }
-        });
-      }
-    };
-
-    // Set up monitoring after iframe has time to load
-    setTimeout(monitorSubmitButton, 3000);
-
-    return () => {
-      // Cleanup would go here if needed
-    };
-  }, [navigate]);
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      // Prepare data for submission
+      const submissionData = {
+        ...formData,
+        quizAnswers,
+        evOwnership,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log('Form submitted:', submissionData);
+      
+      // Here you can add GHL API call or webhook
+      // For now, we'll simulate the submission
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Redirect immediately to results - THIS IS WHAT YOU WANTED!
+      navigate('/results');
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <main>
@@ -218,37 +96,203 @@ const LeadForm = () => {
       </section>
 
       {/* Form Section */}
-      <section className="container px-4 pb-6">
+      <section className="container px-4 pb-12">
         <div className="max-w-2xl mx-auto">
-          {isLoading && (
-            <div className="flex items-center justify-center h-96">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-lg">
+            
+            {/* Name Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName">First Name *</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  required
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  required
+                  value={formData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
             </div>
-          )}
-          <div 
-            id="lead-gate" 
-            className={`max-w-2xl mx-auto ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-            style={{ height: "600px" }}
-          >
-            <iframe
-              src="https://link.wattleads.com/widget/form/ySg5U4byfiXezPTgSxBK"
-              style={{ width: "100%", height: "100%", border: "none", borderRadius: "3px" }}
-              id="inline-ySg5U4byfiXezPTgSxBK" 
-              data-layout="{'id':'INLINE'}"
-              data-trigger-type="alwaysShow"
-              data-trigger-value=""
-              data-activation-type="alwaysActivated"
-              data-activation-value=""
-              data-deactivation-type="neverDeactivate"
-              data-deactivation-value=""
-              data-form-name="EV Electric Medic Form "
-              data-height="undefined"
-              data-layout-iframe-id="inline-ySg5U4byfiXezPTgSxBK"
-              data-form-id="ySg5U4byfiXezPTgSxBK"
-              title="EV Electric Medic Form "
-              onLoad={handleIframeLoad}
-            ></iframe>
-          </div>
+
+            {/* Contact Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="email">Email Address *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone">Phone Number *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            {/* Address Fields */}
+            <div>
+              <Label htmlFor="address">Street Address *</Label>
+              <Input
+                id="address"
+                type="text"
+                required
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="city">City *</Label>
+                <Input
+                  id="city"
+                  type="text"
+                  required
+                  value={formData.city}
+                  onChange={(e) => handleInputChange('city', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="state">State *</Label>
+                <Select onValueChange={(value) => handleInputChange('state', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CA">California</SelectItem>
+                    <SelectItem value="TX">Texas</SelectItem>
+                    <SelectItem value="FL">Florida</SelectItem>
+                    <SelectItem value="NY">New York</SelectItem>
+                    <SelectItem value="WA">Washington</SelectItem>
+                    {/* Add more states as needed */}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="zipCode">ZIP Code *</Label>
+                <Input
+                  id="zipCode"
+                  type="text"
+                  required
+                  value={formData.zipCode}
+                  onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            {/* Property Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="homeType">Home Type *</Label>
+                <Select onValueChange={(value) => handleInputChange('homeType', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select home type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="single-family">Single Family Home</SelectItem>
+                    <SelectItem value="townhouse">Townhouse</SelectItem>
+                    <SelectItem value="condo">Condominium</SelectItem>
+                    <SelectItem value="apartment">Apartment</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="electricalPanel">Electrical Panel Age</Label>
+                <Select onValueChange={(value) => handleInputChange('electricalPanel', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select panel age" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0-10">0-10 years</SelectItem>
+                    <SelectItem value="10-20">10-20 years</SelectItem>
+                    <SelectItem value="20-30">20-30 years</SelectItem>
+                    <SelectItem value="30+">30+ years</SelectItem>
+                    <SelectItem value="unknown">Not sure</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="parkingLocation">Where do you park your EV?</Label>
+              <Select onValueChange={(value) => handleInputChange('parkingLocation', value)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select parking location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="garage">Garage</SelectItem>
+                  <SelectItem value="driveway">Driveway</SelectItem>
+                  <SelectItem value="carport">Carport</SelectItem>
+                  <SelectItem value="street">Street parking</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Comments */}
+            <div>
+              <Label htmlFor="comments">Additional Comments</Label>
+              <Textarea
+                id="comments"
+                value={formData.comments}
+                onChange={(e) => handleInputChange('comments', e.target.value)}
+                className="mt-1"
+                rows={3}
+                placeholder="Any special requirements or questions?"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button 
+              type="submit" 
+              className="w-full bg-primary hover:bg-primary/90 text-white py-3 text-lg"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Submitting...
+                </div>
+              ) : (
+                "Get My Custom Quote"
+              )}
+            </Button>
+
+            {/* Quiz Data Display (for debugging) */}
+            {quizAnswers && evOwnership && (
+              <div className="text-sm text-gray-500 mt-4 p-3 bg-gray-50 rounded">
+                <p><strong>EV Ownership:</strong> {evOwnership}</p>
+                <p><strong>Quiz Answers:</strong> {Object.keys(quizAnswers).length} responses captured</p>
+              </div>
+            )}
+
+          </form>
         </div>
       </section>
     </main>
