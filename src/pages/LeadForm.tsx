@@ -108,65 +108,77 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Wait for form submission to complete, then redirect
+  // Redirect immediately when form is submitted
   useEffect(() => {
     const detectFormSubmission = () => {
-      // Listen for messages from the iframe indicating successful submission
+      // Monitor for form submission by detecting submit button clicks
+      const monitorFormSubmission = () => {
+        const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
+        if (iframe) {
+          // Add click listener to the entire iframe area
+          iframe.addEventListener('click', (event) => {
+            console.log('Iframe clicked, checking for form submission...');
+            
+            // Wait a brief moment to see if this was a submit action
+            setTimeout(() => {
+              try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (iframeDoc) {
+                  // Look for submit buttons and add direct listeners
+                  const submitButtons = iframeDoc.querySelectorAll('button[type="submit"], input[type="submit"], .submit-button, button:contains("Submit"), [class*="submit"]');
+                  
+                  submitButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                      console.log('Submit button clicked - redirecting immediately');
+                      // Redirect immediately when submit is clicked
+                      navigate('/results');
+                    });
+                  });
+                }
+              } catch (error) {
+                // CORS error expected - use fallback approach
+                console.log('Using fallback submit detection...');
+                
+                // If we can't access iframe content, assume any click might be submit
+                // and redirect after a very short delay
+                setTimeout(() => {
+                  console.log('Fallback: redirecting after click');
+                  navigate('/results');
+                }, 1000);
+              }
+            }, 100);
+          });
+        }
+      };
+
+      // Listen for any messages from GHL and redirect immediately
       const handleMessage = (event: MessageEvent) => {
         if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
-          console.log('GHL form message:', event.data);
-          
-          // Only redirect when we get a clear submission success message
-          if (event.data && (
-            event.data.type === 'form_submitted' ||
-            (typeof event.data === 'string' && event.data.includes('submitted')) ||
-            (typeof event.data === 'string' && event.data.includes('success'))
-          )) {
-            console.log('Form submitted successfully, redirecting to results...');
-            // Give GHL time to process the submission
-            setTimeout(() => {
-              navigate('/results');
-            }, 2000);
-          }
+          console.log('GHL form message received - redirecting immediately');
+          navigate('/results');
         }
       };
 
       window.addEventListener('message', handleMessage);
 
-      // Monitor for the thank you message appearing (indicates successful submission)
-      const checkForSubmissionSuccess = () => {
+      // Set up form monitoring after iframe loads
+      setTimeout(monitorFormSubmission, 1000);
+
+      // Also add a backup redirect after any significant activity
+      setTimeout(() => {
         const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
         if (iframe) {
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            if (iframeDoc) {
-              const bodyText = iframeDoc.body?.innerText || '';
-              if (bodyText.includes('Thank you for taking the time to complete this form')) {
-                console.log('Thank you message detected - form submitted successfully');
-                // Wait a moment to ensure submission is processed, then redirect
-                setTimeout(() => {
-                  navigate('/results');
-                }, 1500);
-                return true; // Stop checking
-              }
-            }
-          } catch (error) {
-            // CORS error expected, ignore
-          }
-        }
-        return false;
-      };
-
-      // Check for thank you message every 2 seconds
-      const interval = setInterval(() => {
-        if (checkForSubmissionSuccess()) {
-          clearInterval(interval);
+          iframe.addEventListener('load', () => {
+            console.log('Iframe loaded/reloaded - might be form submission');
+            setTimeout(() => {
+              navigate('/results');
+            }, 500);
+          });
         }
       }, 2000);
 
       return () => {
         window.removeEventListener('message', handleMessage);
-        clearInterval(interval);
       };
     };
 
