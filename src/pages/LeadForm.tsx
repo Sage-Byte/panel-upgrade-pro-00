@@ -148,12 +148,11 @@ const LeadForm = () => {
         },
         body: JSON.stringify({
           name: `EV Charger Installation - ${formData.fullName}`,
-          status: 'open',
-          contactId: contact.contact?.id || contact.id,
-          monetaryValue: 0,
           pipelineId: 'uawoqNEqdaeDXFMuyFTt', // Paid Ads Pipeline
-          locationId: '3xmKQz6eOk6ij1aSfTFF', // Electric Medic
-          source: 'EV Charger Funnel'
+          stageId: '99950fe2-4b99-4d2f-a81d-8d9b715ea6a0', // New Lead 💡 stage
+          contactId: contact.contact?.id || contact.id,
+          status: 'open',
+          monetaryValue: 0
         })
       });
 
