@@ -74,11 +74,11 @@ const LeadForm = () => {
       <section className="container px-4 py-4">
         <div className="max-w-2xl mx-auto">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Step 8 of 8</span>
+            <span className="text-sm text-gray-600">Step 6 of 6</span>
             <span className="text-sm text-gray-600">100% Complete</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-green-500 h-2 rounded-full w-full"></div>
+            <div className="bg-purple-600 h-2 rounded-full w-full"></div>
           </div>
         </div>
       </section>
@@ -117,7 +117,7 @@ const LeadForm = () => {
                   required
                   value={formData.fullName}
                   onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="test"
                 />
               </div>
@@ -140,7 +140,7 @@ const LeadForm = () => {
                   required
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="test@gmail.com"
                 />
               </div>
@@ -163,7 +163,7 @@ const LeadForm = () => {
                   required
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="938507357"
                 />
               </div>
@@ -187,7 +187,7 @@ const LeadForm = () => {
                   required
                   value={formData.postcode}
                   onChange={(e) => handleInputChange('postcode', e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-blue-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   placeholder="8500"
                 />
               </div>
@@ -201,7 +201,7 @@ const LeadForm = () => {
                   name="consent"
                   type="checkbox"
                   required
-                  className="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 rounded"
+                  className="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 rounded"
                 />
               </div>
               <div className="ml-3 text-sm">
@@ -214,7 +214,7 @@ const LeadForm = () => {
             {/* Privacy Notice */}
             <div className="flex items-start">
               <div className="flex items-center h-5 mt-0.5">
-                <svg className="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               </div>
@@ -225,12 +225,25 @@ const LeadForm = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-4">
+            {/* Buttons */}
+            <div className="pt-4 flex gap-4">
+              {/* Previous Button */}
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="flex justify-center items-center py-3 px-6 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
+              </button>
+
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
