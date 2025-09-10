@@ -108,79 +108,65 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Add immediate form submission detection and redirect
+  // Wait for form submission to complete, then redirect
   useEffect(() => {
     const detectFormSubmission = () => {
-      // Listen for any form submission events in the iframe
+      // Listen for messages from the iframe indicating successful submission
       const handleMessage = (event: MessageEvent) => {
         if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
           console.log('GHL form message:', event.data);
           
-          // Redirect immediately on any form-related message
+          // Only redirect when we get a clear submission success message
           if (event.data && (
             event.data.type === 'form_submitted' ||
-            event.data.includes('submitted') ||
-            event.data.includes('success') ||
-            event.data.includes('thank') ||
-            event.data.includes('form')
+            (typeof event.data === 'string' && event.data.includes('submitted')) ||
+            (typeof event.data === 'string' && event.data.includes('success'))
           )) {
-            console.log('Form activity detected, redirecting immediately...');
-            navigate('/results');
+            console.log('Form submitted successfully, redirecting to results...');
+            // Give GHL time to process the submission
+            setTimeout(() => {
+              navigate('/results');
+            }, 2000);
           }
         }
       };
 
       window.addEventListener('message', handleMessage);
 
-      // Monitor for form submission by detecting submit button clicks
-      const monitorFormSubmission = () => {
+      // Monitor for the thank you message appearing (indicates successful submission)
+      const checkForSubmissionSuccess = () => {
         const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
         if (iframe) {
-          // Add click listener to the entire iframe area
-          iframe.addEventListener('click', () => {
-            console.log('Iframe clicked, checking for form submission...');
-            
-            // Wait a moment then check if form was submitted
-            setTimeout(() => {
-              try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                if (iframeDoc) {
-                  const submitButtons = iframeDoc.querySelectorAll('button[type="submit"], input[type="submit"], .submit-button, [class*="submit"]');
-                  
-                  if (submitButtons.length > 0) {
-                    // Monitor submit button clicks
-                    submitButtons.forEach(button => {
-                      button.addEventListener('click', () => {
-                        console.log('Submit button clicked, redirecting immediately...');
-                        // Redirect immediately when submit is clicked
-                        setTimeout(() => {
-                          navigate('/results');
-                        }, 500);
-                      });
-                    });
-                  }
-                }
-              } catch (error) {
-                // CORS error expected, use fallback approach
-                console.log('Using fallback submit detection...');
-                
-                // If we can't access iframe content, redirect after a short delay
-                // assuming the click might have been on a submit button
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (iframeDoc) {
+              const bodyText = iframeDoc.body?.innerText || '';
+              if (bodyText.includes('Thank you for taking the time to complete this form')) {
+                console.log('Thank you message detected - form submitted successfully');
+                // Wait a moment to ensure submission is processed, then redirect
                 setTimeout(() => {
-                  console.log('Fallback redirect triggered...');
                   navigate('/results');
-                }, 2000);
+                }, 1500);
+                return true; // Stop checking
               }
-            }, 100);
-          });
+            }
+          } catch (error) {
+            // CORS error expected, ignore
+          }
         }
+        return false;
       };
 
-      // Set up form monitoring after iframe loads
-      setTimeout(monitorFormSubmission, 1000);
+      // Check for thank you message every 2 seconds
+      const interval = setInterval(() => {
+        if (checkForSubmissionSuccess()) {
+          clearInterval(interval);
+        }
+      }, 2000);
 
       return () => {
         window.removeEventListener('message', handleMessage);
+        clearInterval(interval);
       };
     };
 
@@ -188,40 +174,6 @@ const LeadForm = () => {
     return cleanup;
   }, [navigate]);
 
-  // Backup redirect approach - immediate button and shorter auto-redirect
-  useEffect(() => {
-    const addQuickRedirect = () => {
-      setTimeout(() => {
-        // Add immediate redirect button
-        const redirectButton = document.createElement('button');
-        redirectButton.innerHTML = 'Continue to Your Results →';
-        redirectButton.className = 'fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 font-semibold hover:bg-primary/90 transition-all duration-300';
-        redirectButton.style.display = 'none';
-        redirectButton.onclick = () => navigate('/results');
-        
-        document.body.appendChild(redirectButton);
-        
-        // Show button after just 1 second
-        setTimeout(() => {
-          redirectButton.style.display = 'block';
-        }, 1000);
-        
-        // Auto-redirect after 3 seconds if no manual click
-        setTimeout(() => {
-          console.log('Quick auto-redirect to results page...');
-          navigate('/results');
-        }, 3000);
-        
-        return () => {
-          if (document.body.contains(redirectButton)) {
-            document.body.removeChild(redirectButton);
-          }
-        };
-      }, 1000);
-    };
-
-    addQuickRedirect();
-  }, [navigate]);
 
   return (
     <main>
