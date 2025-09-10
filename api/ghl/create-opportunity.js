@@ -27,38 +27,17 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server configuration error' });
     }
 
-    // First, get the pipeline stages to find the "Lead In" stage ID
-    const pipelineResponse = await fetch(`https://services.leadconnectorhq.com/opportunities/pipelines/${GHL_PIPELINE_ID}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${GHL_API_KEY}`,
-        'Content-Type': 'application/json',
-        'Version': '2021-07-28'
-      }
-    });
-
-    if (!pipelineResponse.ok) {
-      throw new Error(`Failed to fetch pipeline: ${pipelineResponse.status}`);
-    }
-
-    const pipeline = await pipelineResponse.json();
-    const leadInStage = pipeline.stages?.find(s => s.name === 'Lead In') || pipeline.stages?.[0];
-    
-    if (!leadInStage) {
-      throw new Error('Lead In stage not found in pipeline');
-    }
+    // GHL will automatically assign the opportunity to the first stage of the pipeline
 
     // Prepare opportunity data for GHL API
     const opportunityData = {
-      title,
-      stageId: leadInStage.id,
+      name: title,
       status,
       contactId,
       monetaryValue: value || 0,
       pipelineId: GHL_PIPELINE_ID,
       locationId: GHL_LOCATION_ID,
-      source,
-      notes
+      source
     };
 
     console.log('Creating opportunity with data:', JSON.stringify(opportunityData, null, 2));
