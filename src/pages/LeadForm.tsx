@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import type { QuizAnswers } from "@/types/quiz";
 
 const LeadForm = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
   const [evOwnership, setEvOwnership] = useState<string | null>(null);
@@ -105,6 +107,111 @@ const LeadForm = () => {
   const handleIframeLoad = () => {
     setIsLoading(false);
   };
+
+  // Add form submission detection and redirect
+  useEffect(() => {
+    const detectFormSubmission = () => {
+      // Listen for messages from the iframe
+      const handleMessage = (event: MessageEvent) => {
+        // Check if message is from GHL form
+        if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
+          console.log('GHL form message:', event.data);
+          
+          // Check for form submission success
+          if (event.data && (
+            event.data.type === 'form_submitted' ||
+            event.data.includes('submitted') ||
+            event.data.includes('success') ||
+            event.data.includes('thank')
+          )) {
+            console.log('Form submitted successfully, redirecting to results...');
+            // Redirect to results page after a short delay
+            setTimeout(() => {
+              navigate('/results');
+            }, 1500);
+          }
+        }
+      };
+
+      // Add event listener for messages
+      window.addEventListener('message', handleMessage);
+
+      // Also detect if the iframe content changes to show thank you message
+      const checkForThankYouMessage = () => {
+        const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
+        if (iframe) {
+          try {
+            // This might not work due to CORS, but worth trying
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (iframeDoc) {
+              const bodyText = iframeDoc.body?.innerText || '';
+              if (bodyText.includes('Thank you for taking the time to complete this form') || 
+                  bodyText.includes('thank you') || 
+                  bodyText.includes('submitted')) {
+                console.log('Thank you message detected, redirecting...');
+                setTimeout(() => {
+                  navigate('/results');
+                }, 1500);
+              }
+            }
+          } catch (error) {
+            // CORS error expected, ignore
+          }
+        }
+      };
+
+      // Check periodically for thank you message
+      const interval = setInterval(checkForThankYouMessage, 1000);
+
+      // Cleanup
+      return () => {
+        window.removeEventListener('message', handleMessage);
+        clearInterval(interval);
+      };
+    };
+
+    const cleanup = detectFormSubmission();
+    return cleanup;
+  }, [navigate]);
+
+  // Alternative approach: Add a manual redirect button after form submission
+  useEffect(() => {
+    const addRedirectButton = () => {
+      // Wait for the iframe to load and then add a listener for clicks
+      setTimeout(() => {
+        const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
+        if (iframe) {
+          // Add a button that appears after form submission
+          const redirectButton = document.createElement('button');
+          redirectButton.innerHTML = 'Continue to Your Results →';
+          redirectButton.className = 'fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 font-semibold hover:bg-primary/90 transition-all duration-300';
+          redirectButton.style.display = 'none';
+          redirectButton.onclick = () => navigate('/results');
+          
+          document.body.appendChild(redirectButton);
+          
+          // Show button after 3 seconds (assuming form might be submitted by then)
+          setTimeout(() => {
+            redirectButton.style.display = 'block';
+          }, 3000);
+          
+          // Auto-redirect after 8 seconds if no manual click
+          setTimeout(() => {
+            console.log('Auto-redirecting to results page...');
+            navigate('/results');
+          }, 8000);
+          
+          return () => {
+            if (document.body.contains(redirectButton)) {
+              document.body.removeChild(redirectButton);
+            }
+          };
+        }
+      }, 2000);
+    };
+
+    addRedirectButton();
+  }, [navigate]);
 
   return (
     <main>
