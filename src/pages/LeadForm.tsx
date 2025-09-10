@@ -108,72 +108,72 @@ const LeadForm = () => {
     setIsLoading(false);
   };
 
-  // Redirect immediately ONLY after actual form submission
+  // Intercept any navigation to /thank-you and redirect to /results instead
   useEffect(() => {
-    const detectFormSubmission = () => {
-      let formSubmitted = false;
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
 
-      // Listen for GHL form submission messages
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
-          console.log('GHL form message:', event.data);
-          
-          // Only redirect on actual submission messages
-          if (event.data && (
-            event.data.type === 'form_submitted' ||
-            event.data.type === 'submission_complete' ||
-            (typeof event.data === 'string' && (
-              event.data.includes('submitted') ||
-              event.data.includes('success') ||
-              event.data.includes('complete')
-            ))
-          )) {
-            console.log('Form submitted - redirecting immediately');
-            formSubmitted = true;
-            navigate('/results');
-          }
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-
-      // Monitor for form submission by checking for thank you message
-      const checkForSubmission = () => {
-        if (formSubmitted) return; // Already handled
-        
-        const iframe = document.getElementById('inline-ySg5U4byfiXezPTgSxBK') as HTMLIFrameElement;
-        if (iframe) {
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            if (iframeDoc) {
-              const bodyText = iframeDoc.body?.innerText || '';
-              
-              // Check for thank you message (indicates form was submitted)
-              if (bodyText.includes('Thank you for taking the time to complete this form') ||
-                  bodyText.includes('form has been submitted') ||
-                  bodyText.includes('submission successful')) {
-                console.log('Form submission detected via content - redirecting immediately');
-                formSubmitted = true;
-                navigate('/results');
-              }
-            }
-          } catch (error) {
-            // CORS error expected, ignore
-          }
-        }
-      };
-
-      // Check for submission every 500ms (faster detection)
-      const interval = setInterval(checkForSubmission, 500);
-
-      return () => {
-        window.removeEventListener('message', handleMessage);
-        clearInterval(interval);
-      };
+    // Override history methods to catch GHL redirects
+    window.history.pushState = function(state: any, title: string, url?: string | URL | null) {
+      if (url && url.toString().includes('/thank-you')) {
+        console.log('Intercepting redirect to /thank-you, going to /results instead');
+        navigate('/results');
+        return;
+      }
+      return originalPushState.call(this, state, title, url);
     };
 
-    const cleanup = detectFormSubmission();
-    return cleanup;
+    window.history.replaceState = function(state: any, title: string, url?: string | URL | null) {
+      if (url && url.toString().includes('/thank-you')) {
+        console.log('Intercepting redirect to /thank-you, going to /results instead');
+        navigate('/results');
+        return;
+      }
+      return originalReplaceState.call(this, state, title, url);
+    };
+
+    // Also listen for popstate events
+    const handlePopState = (event: PopStateEvent) => {
+      if (window.location.pathname === '/thank-you') {
+        console.log('Detected navigation to /thank-you, redirecting to /results');
+        navigate('/results');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Listen for GHL form submission messages
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin.includes('wattleads.com') || event.origin.includes('gohighlevel.com')) {
+        console.log('GHL form message:', event.data);
+        
+        // Only redirect on actual submission messages
+        if (event.data && (
+          event.data.type === 'form_submitted' ||
+          event.data.type === 'submission_complete' ||
+          event.data.action === 'submit' ||
+          (typeof event.data === 'string' && (
+            event.data.includes('submitted') ||
+            event.data.includes('success') ||
+            event.data.includes('complete') ||
+            event.data.includes('redirect')
+          ))
+        )) {
+          console.log('Form submitted - redirecting to /results');
+          navigate('/results');
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      // Restore original methods
+      window.history.pushState = originalPushState;
+      window.history.replaceState = originalReplaceState;
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('message', handleMessage);
+    };
   }, [navigate]);
 
 
