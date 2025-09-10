@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
     const GHL_PIPELINE_ID = process.env.GHL_PIPELINE_ID;
 
-    console.log('Environment variables check:');
+    console.log('Environment variables check (v2):');
     console.log('GHL_API_KEY:', GHL_API_KEY ? 'Present' : 'Missing');
     console.log('GHL_LOCATION_ID:', GHL_LOCATION_ID || 'Missing');
     console.log('GHL_PIPELINE_ID:', GHL_PIPELINE_ID || 'Missing');
